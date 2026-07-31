@@ -1,31 +1,17 @@
 """
-BookCatalog
-Главный файл программы
+BookCatalog, Главный файл программы
 версия 0.0.1
 """
 
-print("BookCatalog, версия 0.0.1")
-print('Добро пожаловать!')
-
-print('Add book to list. When you want to stop adding, just print "stop"')
-
+from book_manager import print_books, add_books, show_menu
 
 book_list = []
 while True:
-    name = input('Введи название книги: ').strip()
-    if name == 'stop':
+    choice = show_menu()
+
+    if choice == '1':
+        print_books(book_list)
+    elif choice == '2':
+        add_books(book_list)
+    elif choice == '0':
         break
-    elif name == '':
-        print('Вы не ввели название книги')
-    else:
-        book_list.append(name)
-
-print('='*30)
-print(f'В библиотеке {len(book_list)} книг(и)')
-print()
-
-for number, book in enumerate(book_list, start=1):
-    print(f'{number:2d}. {book}')
-
-print('='*30)
-
