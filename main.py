@@ -1,11 +1,17 @@
 """
 BookCatalog, Главный файл программы
-версия 0.0.1
 """
+from book_manager import (print_books, add_books, show_menu, menu_delete_books)
+from config import DEBUG, TEST_BOOKS, VERSION
 
-from book_manager import print_books, add_books, show_menu
+print(f"BookCatalog {VERSION}")
 
-book_list = []
+if DEBUG:
+    book_list = TEST_BOOKS.copy()
+else:
+    book_list = []
+
+
 while True:
     choice = show_menu()
 
@@ -13,5 +19,7 @@ while True:
         print_books(book_list)
     elif choice == '2':
         add_books(book_list)
+    elif choice == '3':
+        menu_delete_books(book_list)
     elif choice == '0':
         break
