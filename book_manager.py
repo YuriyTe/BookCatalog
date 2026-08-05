@@ -9,40 +9,39 @@ def show_menu():
     choice = input('Ваш выбор: ')
     return choice
 
-def menu_delete_books(book_list):
-    print_books(book_list)
+def menu_delete_books(book_data):
+    print_books(book_data)
 
     while True:
-        action = input('Введите номер книги для удаления (0 - отмена): ').strip()
+        action = input('Введите ID книги для удаления (0 - отмена): ').strip()
         if not action.isdigit():
             print('Enter the digital code of the book')
             continue
         number = int(action)
-        if 0 < number <= len(book_list):
-            delete_books(book_list, number)
+        if 0 < number <= len(book_data["books"]):
+            delete_books(book_data, number)
             print('Книга удалена')
-        elif number > len(book_list):
+        elif number > len(book_data["books"]):
             print('There is no such book')
             break
         elif action == '0':
             break
 
 #Menu for finding the book
-def menu_find_book(book_list):
-    print_books(book_list)
+def menu_find_book(book_data):
+    print_books(book_data)
     while True:
         words = input('Введите часть названия книги (0 - для отмены): ').strip().lower()
         if words == '0':
             break
         if words == '' :
             print('Введите текст для поиска.')
-            continue
         else:
-            found_books = find_book(book_list, words)
+            found_books = find_book(book_data, words)
             if found_books:
                 for num, book in enumerate(found_books, start=1):
                     print(f'{num}. {book}')
-                result = input(f'Это то что вы искали (y/n): ').strip().lower()
+                result = input('Это то что вы искали (y/n): ').strip().lower()
                 if result == 'y':
                     print('Отправляем книгу в программу для чтения') # For now,
                     # for simplicity
@@ -54,39 +53,101 @@ def menu_find_book(book_list):
 
 
 # Add books to the library
-def add_books(book_list):
-    print('Вводите названия в строчке ниже, для окончания ввода введите "стоп"')
+def add_books(book_data):
+    max_id = max((book.get("id", 0) for book in book_data["books"]), default=0)
+    added_book = {
+      "id": max_id + 1,
+      "title": "",
+      "author": "",
+      "year": 0,
+      "genre": [],
+      "path": "",
+      "format": "fb2"
+    }
+    print('Вводите данные, для окончания ввода "стоп"')
+
     while True:
         title = input('Введи название книги: ').strip()
         if title == '':
             print('Вы не ввели название книги')
-        elif title == 'стоп':
+        elif title.lower() == 'стоп':
+            return
+        else:
+            added_book["title"] = title
+            break
+
+    while True:
+        author = input('Введи Имя и фамилию автора: ').strip()
+        if author == '':
+            print('Вы не ввели имя автора')
+        elif author.lower() == 'стоп':
+            return
+        else:
+            added_book["author"] = author
+            break
+
+    while True:
+        year = input('Введи год издания: ').strip()
+        if year == '':
+            print('Вы не ввели год издания')
+        elif year.lower() == 'стоп':
+            return
+        else:
+            added_book["year"] = year
+            break
+
+    while True:
+        genre = input('Введи жанр книги: ').strip()
+        if genre == '':
+            print('Вы не ввели жанр')
+        elif genre.lower() == 'стоп':
+            return
+        else:
+            added_book["genre"].append(genre)
+            break
+
+    while True:
+        path = input('Ввести путь к книге').strip()
+        if path == '':
+            print('Вы не ввели путь к книге')
+        elif path.lower() == 'стоп':
             break
         else:
-            if duplicates_check(book_list, title):
-                book_list.append(title)
+            added_book["path"] = path
+            break
+
+    book_data["books"].append(added_book)
+    print(f"Книга '{added_book['title']}' добавлена (ID: {added_book['id']})")
 
 
-def print_books(book_list):
-    if not book_list:
+
+def print_books(book_data):
+    if not book_data:
         print('List is empty')
         return
 
     print('=' * 30)
-    print(f'В библиотеке {len(book_list)} книг(и)')
+    print(f'В библиотеке {len(book_data["books"])} книг(и)')
 
-    for number, book in enumerate(book_list, start=1):
-        print(f'{number:2d}. {book}')
+    for book in (book_data["books"]):
+        print(f'{book["id"]}. {book["title"]} — {book["author"]}')
 
     print('=' * 30)
 
-def delete_books(book_list, number):
-    book_list.pop(number-1)
+
+def delete_books(book_data, id_number):
+    for i, book in enumerate(book_data["books"]):
+        if book["id"] == id_number:
+            deleted_book = book_data["books"].pop(i)
+            print((f"Удалена книга: {deleted_book['title']} ({deleted_book['author']})"))
+            break
+    else:
+        print(f"Книга с id {id_number} не найдена.")
 
 # Check for duplicate books
-def duplicates_check(book_list, title):
+def duplicates_check(book_data, title):
     title_lower = title.lower()
-    for name in book_list:
+    for name in book_data:
         if title_lower == name.lower():
             print('Такая книга уже есть')
             action = input('Добавить еще один экземпляр? (y/n): ').strip().lower()
@@ -99,10 +160,10 @@ def duplicates_check(book_list, title):
     return True
 
 #
-def find_book(book_list, word):
+def find_book(book_data, word):
     query_words = word.split()
     found_books = []
-    for book in book_list:
+    for book in book_data:
         book_lower = book.lower()
         if all(word in book_lower for word in query_words):
             found_books.append(book)
