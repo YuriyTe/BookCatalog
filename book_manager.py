@@ -20,7 +20,6 @@ def menu_delete_books(book_data):
         number = int(action)
         if 0 < number <= len(book_data["books"]):
             delete_books(book_data, number)
-            print('Книга удалена')
         elif number > len(book_data["books"]):
             print('There is no such book')
             break
@@ -39,8 +38,8 @@ def menu_find_book(book_data):
         else:
             found_books = find_book(book_data, words)
             if found_books:
-                for num, book in enumerate(found_books, start=1):
-                    print(f'{num}. {book}')
+                for book in (found_books):
+                    print(f'{book["id"]}. {book["title"]} - {book["author"]}')
                 result = input('Это то что вы искали (y/n): ').strip().lower()
                 if result == 'y':
                     print('Отправляем книгу в программу для чтения') # For now,
@@ -49,8 +48,6 @@ def menu_find_book(book_data):
                     continue
             else:
                 print('Книги не найдены.')
-
-
 
 # Add books to the library
 def add_books(book_data):
@@ -66,59 +63,59 @@ def add_books(book_data):
     }
     print('Вводите данные, для окончания ввода "стоп"')
 
-    while True:
-        title = input('Введи название книги: ').strip()
-        if title == '':
-            print('Вы не ввели название книги')
-        elif title.lower() == 'стоп':
-            return
-        else:
-            added_book["title"] = title
-            break
+    title = input_required('Введи название книги: ')
+    if title is None:
+        return
+    added_book["title"] = title
 
-    while True:
-        author = input('Введи Имя и фамилию автора: ').strip()
-        if author == '':
-            print('Вы не ввели имя автора')
-        elif author.lower() == 'стоп':
-            return
-        else:
-            added_book["author"] = author
-            break
+    author = input_required('Введи Имя и фамилию автора')
+    if author is None:
+        return
+    added_book["author"] = author
 
-    while True:
-        year = input('Введи год издания: ').strip()
-        if year == '':
-            print('Вы не ввели год издания')
-        elif year.lower() == 'стоп':
-            return
-        else:
-            added_book["year"] = year
-            break
+    year = input_year('Введи год издания')
+    if year is None:
+        return
+    added_book["year"] =   year
 
-    while True:
-        genre = input('Введи жанр книги: ').strip()
-        if genre == '':
-            print('Вы не ввели жанр')
-        elif genre.lower() == 'стоп':
-            return
-        else:
-            added_book["genre"].append(genre)
-            break
+    genre = input_required('Введи жанр, (если больше одного, через запятую)')
+    if genre is None:
+        return
+    genre = [g.strip() for g in genre.split(',') if g.strip()]
+    added_book["genre"] =  genre
 
-    while True:
-        path = input('Ввести путь к книге').strip()
-        if path == '':
-            print('Вы не ввели путь к книге')
-        elif path.lower() == 'стоп':
-            break
-        else:
-            added_book["path"] = path
-            break
+    path = input_required('Введи путь к директории')
+    if path is None:
+        return
+    added_book["path"] = path
+
 
     book_data["books"].append(added_book)
-    print(f"Книга '{added_book['title']}' добавлена (ID: {added_book['id']})")
+    book_data["book_count"] = len(book_data["books"])
+    print(f"Книга '{added_book["title"]}' добавлена (ID: {added_book["id"]})")
 
+
+def input_required(message):
+    while True:
+        value = input(f'{message}: ').strip()
+        if value == '':
+            print('Поле не может быть пустым.')
+        elif value.lower() == 'стоп':
+            return None
+        else:
+            return value
+
+
+def input_year(message):
+    while True:
+        value = input(message).strip()
+        if value.lower() == "стоп":
+            return None
+        if not value.isdigit():
+            print("Введите число.")
+            continue
+
+        return int(value)
 
 
 def print_books(book_data):
@@ -163,8 +160,8 @@ def duplicates_check(book_data, title):
 def find_book(book_data, word):
     query_words = word.split()
     found_books = []
-    for book in book_data:
-        book_lower = book.lower()
+    for book in book_data["books"]:
+        book_lower = book["title"].lower()
         if all(word in book_lower for word in query_words):
             found_books.append(book)
     return found_books
