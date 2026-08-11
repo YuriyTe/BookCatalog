@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
     QLabel, QMessageBox
 )
 
+
 def add_book():
     title = title_edit.text()
     author = author_edit.text()

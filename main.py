@@ -7,6 +7,7 @@ from config import DEBUG, TEST_BOOKS, VERSION
 from file_operations import open_database, close_database
 import json
 
+
 print(f"BookCatalog {VERSION}")
 
 if DEBUG:
