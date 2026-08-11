@@ -3,6 +3,8 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit,
     QLabel, QMessageBox
 )
+from file_operations import open_database, close_database
+from book_manager import find_book
 
 
 def add_book():
@@ -46,13 +48,37 @@ def ask_delete(title):
             "Удаление",
             "Удаление отменено")
 
+    title_edit.clear()
 
-def find_book():
-    print("Find book")
+
+def find_button_clicked():
+    word = title_edit.text()
+
+    for book in book_data["books"]:
+        print(repr(book["title"]))
+
+    print("Ищу:", repr(word))
+    print("Запрос:", word.split())
+
+    found_books = find_book(book_data, word)
+
+    print(found_books)
+
+    title_edit.clear()
+    author_edit.clear()
+    genre_edit.clear()
+
+
 
 def print_book():
     print("Print book")
 
+
+book_data = open_database()
+print(f'Книг в списке {len(book_data["books"])}')
+
+for book in book_data["books"]:
+    print(book["title"])
 
 
 app = QApplication(sys.argv)
@@ -71,7 +97,7 @@ button_print = QPushButton("Напечатать книгу")
 
 button_add.clicked.connect(add_book)
 button_delete.clicked.connect(delete_button_clicked)
-button_find.clicked.connect(find_book)
+button_find.clicked.connect(find_button_clicked)
 
 
 title_label = QLabel("Название книги:")
