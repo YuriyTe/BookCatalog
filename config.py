@@ -1,6 +1,5 @@
-from xml.etree.ElementTree import VERSION
 
-DEBUG = True
+DEBUG = False
 
 TEST_BOOKS = {
   "last_updated": "2026-08-05",

@@ -1,4 +1,4 @@
-
+from validation import validate_book
 
 def show_menu():
     print('1. Показать книги')
@@ -127,7 +127,10 @@ def print_books(book_data):
     print(f'В библиотеке {len(book_data["books"])} книг(и)')
 
     for book in (book_data["books"]):
-        print(f'{book["id"]}. {book["title"]} — {book["author"]}')
+        validate_book(book)
+        title = book.get("title", "Нет названия")
+        author = book.get("author", "нет имени автора")
+        print(f'{book["id"]}. {title} — {author}')
 
     print('=' * 30)
 
@@ -156,7 +159,7 @@ def duplicates_check(book_data, title):
                 return False
     return True
 
-#
+
 def find_book(book_data, word):
     query_words = word.split()
     found_books = []

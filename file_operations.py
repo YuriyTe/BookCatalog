@@ -1,22 +1,8 @@
 import json
 import sys
 from datetime import date
+from validation import validate_database
 
-def validate_database(book_data):
-    if not isinstance(book_data, dict):
-        print('Ошибка: формат записи нарушен JSON!')
-        sys.exit(3)
-    elif not all(key in book_data for key in ('last_updated', 'book_count', 'books')):
-        print('Ошибка: Не хватает данных в файле JSON!')
-        sys.exit(4)
-    elif not isinstance(book_data['books'], list):
-        print('Ошибка: Нет записей книг в библиотеке!')
-        sys.exit(5)
-    for item in book_data['books']:
-        if not isinstance(item, dict):
-            print('Ошибка: Нарушен фармат записи данных о книге!')
-            sys.exit(6)
-    return True
 
 
 def open_database():
