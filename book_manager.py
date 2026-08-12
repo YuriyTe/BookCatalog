@@ -161,11 +161,13 @@ def duplicates_check(book_data, title):
 
 
 def find_book(book_data, word):
+    print(f'got {word}')
     query_words = word.lower().split()
     found_books = []
     for book in book_data["books"]:
         book_lower = book["title"].lower()
         if all(word in book_lower for word in query_words):
             found_books.append(book)
+
     return found_books
 
