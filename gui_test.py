@@ -5,8 +5,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from file_operations import open_database, close_database
-from book_manager import find_book
+from book_manager import find_book, delete_books
 
+selected_book_id = None
 
 def add_book():
     title = title_edit.text()
@@ -26,24 +27,29 @@ def add_book():
     genre_edit.clear()
 
 def delete_button_clicked():
-    title = title_edit.text()
-    found_books = find_book(book_data, title)
+    print("Нажата кнопка удаления")
+    print("selected_book_id:", selected_book_id)
+    if selected_book_id is None:
+        return
 
+    ask_delete(selected_book_id)
 
-
-
-    ask_delete(title)
-
-def delete_book():
-    print("Delete book")
 
 def ask_delete(book_id):
+    for book in book_data["books"]:
+        if book["id"] == book_id:
+            title = book["title"]
+            break
+
     answer = QMessageBox.question(
         window,
         "Удаление книги",
-        f"Удалить книгу с ID: {book_id}?"
+        f"Удалить книгу с ID: {book_id}\n«{title}»?"
+
     )
     if answer == QMessageBox.StandardButton.Yes:
+        delete_books(book_data, book_id)
+
         QMessageBox.information(
             window,
             "Удаление",
@@ -61,11 +67,7 @@ def find_button_clicked():
     word = title_edit.text()
     found_books = find_book(book_data, word)
 
-    print(word)
-    print(found_books)
-
     book_list.clear()
-
     for book in found_books:
         item = QListWidgetItem(
             f"ID: {book['id']} | {book['title']}"
@@ -74,9 +76,7 @@ def find_button_clicked():
             Qt.ItemDataRole.UserRole,
             book["id"]
         )
-        book_list.addItem(
-            f"ID: {book['id']} | {book['title']}"
-        )
+        book_list.addItem(item)
 
     # <editor-fold desc="Показ QMessageBox с книгами">
     # if found_books:
@@ -106,9 +106,10 @@ def find_button_clicked():
     genre_edit.clear()
 
 def book_selected(item):
+    global selected_book_id
+    selected_book_id = item.data(Qt.ItemDataRole.UserRole)
 
-    book_id = item.data(Qt.ItemDataRole.UserRole)
-    print("Выбрана книга:", book_id)
+    print("Выбрана книга:", selected_book_id)
 
 def print_book():
     print("Print book")
@@ -120,7 +121,6 @@ print(f'Книг в списке {len(book_data["books"])}')
 for book in book_data["books"]:
     print(book["title"])
 
-selected_book_id = None
 
 app = QApplication(sys.argv)
 
