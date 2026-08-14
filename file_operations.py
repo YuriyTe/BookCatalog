@@ -21,7 +21,7 @@ def open_database():
             return book_data
 
 
-def close_database(book_data):
+def save_database(book_data):
         book_data['last_updated'] = date.today().isoformat()
         with open('data/book_db.json', 'w', encoding='utf-8') as file:
             json.dump(book_data, file, indent=4, ensure_ascii=False)

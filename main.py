@@ -4,7 +4,7 @@ BookCatalog, Главный файл программы
 from book_manager import (print_books, add_books, show_menu, menu_delete_books,
                           menu_find_book)
 from config import DEBUG, TEST_BOOKS, VERSION
-from file_operations import open_database, close_database
+from file_operations import open_database, save_database
 import json
 
 
@@ -28,5 +28,5 @@ while True:
     elif choice == '4':
         menu_find_book(book_data)
     elif choice == '0':
-        close_database(book_data)
+        save_database(book_data)
         break

@@ -1,14 +1,17 @@
+# ===== Импорты =====
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit,
     QLabel, QMessageBox, QListWidget, QListWidgetItem
 )
 from PySide6.QtCore import Qt
-from file_operations import open_database, close_database
+from file_operations import open_database, save_database
 from book_manager import find_book, delete_books
-
+# ===== Глобальные переменные =====
 selected_book_id = None
+selected_item = None
 
+# ===== Работа с GUI (функции) =====
 def add_book():
     title = title_edit.text()
     author = author_edit.text()
@@ -27,15 +30,15 @@ def add_book():
     genre_edit.clear()
 
 def delete_button_clicked():
-    print("Нажата кнопка удаления")
-    print("selected_book_id:", selected_book_id)
+
     if selected_book_id is None:
         return
 
     ask_delete(selected_book_id)
 
-
 def ask_delete(book_id):
+    global selected_book_id, selected_item
+
     for book in book_data["books"]:
         if book["id"] == book_id:
             title = book["title"]
@@ -49,6 +52,10 @@ def ask_delete(book_id):
     )
     if answer == QMessageBox.StandardButton.Yes:
         delete_books(book_data, book_id)
+        row = book_list.row(selected_item)
+        book_list.takeItem(row)
+
+        save_database(book_data)
 
         QMessageBox.information(
             window,
@@ -61,7 +68,8 @@ def ask_delete(book_id):
             "Удаление отменено")
 
     title_edit.clear()
-
+    selected_book_id = None
+    selected_item = None
 
 def find_button_clicked():
     word = title_edit.text()
@@ -78,50 +86,23 @@ def find_button_clicked():
         )
         book_list.addItem(item)
 
-    # <editor-fold desc="Показ QMessageBox с книгами">
-    # if found_books:
-    #     result = ""
-    #     for book in found_books:
-    #         result += (
-    #             f"Название: {book['title']}\n"
-    #             f"Автор: {book['author']}\n"
-    #             f"Год: {book['year']}\n\n"
-    #         )
-    #
-    #     QMessageBox.information(
-    #         window,
-    #         "Результат поиска",
-    #         result
-    #     )
-    # else:
-    #     QMessageBox.information(
-    #         window,
-    #         "Результат поиска",
-    #         "Книга не найдена"
-    #     )
-    # </editor-fold>
-
     title_edit.clear()
     author_edit.clear()
     genre_edit.clear()
 
 def book_selected(item):
-    global selected_book_id
+    global selected_book_id, selected_item
     selected_book_id = item.data(Qt.ItemDataRole.UserRole)
 
-    print("Выбрана книга:", selected_book_id)
+    selected_item = item
 
 def print_book():
     print("Print book")
 
-
+# ===== Работа с базой =====
 book_data = open_database()
-print(f'Книг в списке {len(book_data["books"])}')
 
-for book in book_data["books"]:
-    print(book["title"])
-
-
+# ===== Создание и внешний вид GUI =====
 app = QApplication(sys.argv)
 
 window = QMainWindow()
