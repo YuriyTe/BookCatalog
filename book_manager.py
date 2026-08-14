@@ -1,3 +1,4 @@
+from file_operations import save_database
 from validation import validate_book
 
 def show_menu():
@@ -94,6 +95,22 @@ def add_books(book_data):
     book_data["book_count"] = len(book_data["books"])
     print(f"Книга '{added_book["title"]}' добавлена (ID: {added_book["id"]})")
 
+def add_book_gui(book_data, title, author, year, genre, path, book_format):
+    if book_data["books"]:
+        new_id = max(book["id"] for book in book_data["books"]) + 1
+    else:
+        new_id = 1
+    new_book = {
+        "id": new_id,
+        "title": title,
+        "author": author,
+        "year": year,
+        "genre": genre,
+        "path": path,
+        "format": book_format
+    }
+    book_data["books"].append(new_book)
+    return new_book
 
 def input_required(message):
     while True:

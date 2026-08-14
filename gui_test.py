@@ -2,11 +2,11 @@
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit,
-    QLabel, QMessageBox, QListWidget, QListWidgetItem
+    QLabel, QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox
 )
 from PySide6.QtCore import Qt
 from file_operations import open_database, save_database
-from book_manager import find_book, delete_books
+from book_manager import find_book, delete_books, add_book_gui
 # ===== Глобальные переменные =====
 selected_book_id = None
 selected_item = None
@@ -16,10 +16,18 @@ def add_book():
     title = title_edit.text()
     author = author_edit.text()
     genre = genre_edit.text()
+    year = year_edit.text()
+    path = path_edit.text()
+    book_format = format_edit.currentText()
+
+    new_book = add_book_gui(
+        book_data, title, author, year, genre, path, book_format
+    )
+    save_database(book_data)
 
     QMessageBox.information(
         window,
-        "Книга",
+        "Книга добавлена",
         f"Название: {title}\n"
         f"Автор: {author}\n"
         f"Жанр: {genre}"
@@ -28,6 +36,9 @@ def add_book():
     title_edit.clear()
     author_edit.clear()
     genre_edit.clear()
+    path_edit.clear()
+    format_edit.setCurrentIndex(0)
+    year_edit.setValue(2000)
 
 def delete_button_clicked():
 
@@ -96,8 +107,7 @@ def book_selected(item):
 
     selected_item = item
 
-def print_book():
-    print("Print book")
+
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -115,7 +125,6 @@ layout = QVBoxLayout()
 button_add = QPushButton("Добавить книгу")
 button_delete = QPushButton("Удалить книгу")
 button_find = QPushButton("Найти книгу")
-button_print = QPushButton("Напечатать книгу")
 book_list = QListWidget()
 book_list.setStyleSheet("""
     QListWidget {
@@ -130,12 +139,24 @@ book_list.itemClicked.connect(book_selected)
 
 title_label = QLabel("Название книги:")
 title_edit = QLineEdit()
-
 author_label = QLabel("Автор:")
 author_edit = QLineEdit()
-
 genre_label = QLabel("Жанр:")
 genre_edit = QLineEdit()
+year_label = QLabel("Год:")
+year_edit = QSpinBox()
+year_edit.setRange(1200, 2026)
+year_edit.setValue(2000)
+layout.addWidget(title_label)
+path_label = QLabel("Путь:")
+path_edit = QLineEdit()
+format_label = QLabel("Формат:")
+format_edit = QComboBox()
+
+format_edit.addItems([
+"fb2", "epub", "pdf", "mobi", "txt"
+])
+
 
 layout.addWidget(title_label)
 layout.addWidget(title_edit)
@@ -144,13 +165,20 @@ layout.addWidget(author_edit)
 layout.addWidget(genre_label)
 layout.addWidget(genre_edit)
 
+layout.addWidget(year_label)
+layout.addWidget(year_edit)
+layout.addWidget(path_label)
+layout.addWidget(path_edit)
+layout.addWidget(format_label)
+layout.addWidget(format_edit)
+
+
 layout.addWidget(book_list)
 
 layout.addStretch()
 layout.addWidget(button_add)
 layout.addWidget(button_delete)
 layout.addWidget(button_find)
-layout.addWidget(button_print)
 layout.setSpacing(10)
 layout.setContentsMargins(20, 20, 20, 20)
 
