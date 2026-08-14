@@ -139,7 +139,7 @@ def delete_books(book_data, id_number):
     for i, book in enumerate(book_data["books"]):
         if book["id"] == id_number:
             deleted_book = book_data["books"].pop(i)
-            print((f"Удалена книга: {deleted_book['title']} ({deleted_book['author']})"))
+
             break
     else:
         print(f"Книга с id {id_number} не найдена.")
