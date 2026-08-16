@@ -2,11 +2,13 @@
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel,
-    QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter, QTreeWidget
+    QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
+    QTreeWidget, QTreeWidgetItem, QFileDialog
 )
 from PySide6.QtCore import Qt
 from file_operations import open_database, save_database
 from book_manager import find_book, delete_books, add_book_gui
+from pathlib import Path
 
 
 # ===== Работа с GUI (функции) =====
@@ -39,7 +41,7 @@ def add_book(book_data, form_widgets):
     form_widgets["format"].setCurrentIndex(0)
     form_widgets["year"].setValue(2000)
 
-def delete_button_clicked(book_data, book_list, form_widgets):
+def delete_button_clicked(book_data, form_widgets, book_list):
     selected_item = book_list.currentItem()
 
     if selected_item is None:
@@ -85,7 +87,7 @@ def ask_delete(book_data, book_list, selected_item, book_id, form_widgets):
 
     form_widgets["title"].clear()
 
-def find_button_clicked(book_data, book_list, form_widgets):
+def find_button_clicked(book_data, form_widgets, book_list):
     word = form_widgets["title"].text()
     found_books = find_book(book_data, word)
 
@@ -119,7 +121,6 @@ def create_left_panel():
     year_edit = QSpinBox()
     year_edit.setRange(1200, 2026)
     year_edit.setValue(2000)
-    left_layout.addWidget(title_label)
     path_label = QLabel("Путь:")
     path_edit = QLineEdit()
     format_label = QLabel("Формат:")
@@ -152,10 +153,10 @@ def create_left_panel():
         """)
 
     button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
-    button_delete.clicked.connect(lambda: delete_button_clicked(book_data, book_list,
-                                                            form_widgets))
-    button_find.clicked.connect(lambda: find_button_clicked(book_data, book_list,
-                                                            form_widgets))
+    button_delete.clicked.connect(lambda: delete_button_clicked(book_data, form_widgets,
+                                                            book_list))
+    button_find.clicked.connect(lambda: find_button_clicked(book_data, form_widgets,
+                                                            book_list))
 
 
     left_layout.addWidget(book_list)
@@ -176,6 +177,51 @@ def create_left_panel():
         "format": format_edit
     }
 
+def tree_item_clicked(item, column):
+    print(item.text(column))
+    print(item.data(0, Qt.ItemDataRole.UserRole))
+
+def choose_folder():
+    book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt"}
+    folder = QFileDialog.getExistingDirectory(
+        window,
+        "Выберите папку с книгами"
+    )
+
+    if folder:
+        folder = Path(folder)
+        tree.clear()
+
+        root = QTreeWidgetItem(tree, [folder.name])
+        root.setData(
+            0,
+            Qt.ItemDataRole.UserRole,
+            str(folder)
+        )
+
+        for item in folder.iterdir():
+            if item.is_dir():
+                folder_item = QTreeWidgetItem(
+                    root,
+                    [item.name]
+                )
+
+                folder_item.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    str(item)
+                )
+            elif item.is_file():
+                if item.suffix.lower() in book_formats:
+                    book_item = QTreeWidgetItem(root, [item.name])
+
+                    book_item.setData(
+                        0,
+                        Qt.ItemDataRole.UserRole,
+                        str(item)
+                    )
+
+
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -190,26 +236,53 @@ window.resize(800, 600)
 splitter = QSplitter(Qt.Orientation.Horizontal)
 
 main_widget = QWidget()
-
 main_layout = QVBoxLayout()
 main_layout.addWidget(splitter)
-
 main_widget.setLayout(main_layout)
 window.setCentralWidget(main_widget)
 
 left_panel, form_widgets = create_left_panel()
-right_panel = QWidget()
 
+right_panel = QWidget()
 right_layout = QVBoxLayout()
 right_panel.setLayout(right_layout)
 
+button_choose_folder = QPushButton("Выбрать папку")
+button_choose_folder.clicked.connect(choose_folder)
+
+tree = QTreeWidget()
+tree.setHeaderLabels(["Книги"])
+
+right_layout.addWidget(button_choose_folder)
+right_layout.addWidget(tree)
+
+
+
 splitter.addWidget(left_panel)
 splitter.addWidget(right_panel)
-
 splitter.setSizes([250, 550])
 
-label_test = QLabel('Здесь будет основное окно библиотеки')
-right_layout.addWidget(label_test)
+root = QTreeWidgetItem(tree,["Мои книги"])
+book = QTreeWidgetItem(root, ["Человек-амфибия"])
+
+book.setData(
+    0,
+    Qt.ItemDataRole.UserRole,
+    "D:/Books/Человек-амфибия.fb2"
+)
+
+book2 = QTreeWidgetItem(root, ["Солярис"])
+
+book2.setData(
+    0,
+    Qt.ItemDataRole.UserRole,
+    "D:/Books/Станислав Лем/Солярис.fb2"
+)
+
+tree.itemClicked.connect(tree_item_clicked)
+
+
+
 
 window.show()
 app.exec()
