@@ -7,14 +7,10 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from file_operations import open_database, save_database
 from book_manager import find_book, delete_books, add_book_gui
-# ===== Глобальные переменные =====
-selected_book_id = None
-selected_item = None
+
 
 # ===== Работа с GUI (функции) =====
 def add_book(book_data, form_widgets):
-    print("form_widgets:", form_widgets)
-    print("type:", type(form_widgets))
 
     title = form_widgets["title"].text()
     author = form_widgets["author"].text()
@@ -43,15 +39,21 @@ def add_book(book_data, form_widgets):
     form_widgets["format"].setCurrentIndex(0)
     form_widgets["year"].setValue(2000)
 
-def delete_button_clicked():
+def delete_button_clicked(book_data, book_list, form_widgets):
+    selected_item = book_list.currentItem()
 
-    if selected_book_id is None:
+    if selected_item is None:
         return
+    selected_book_id = selected_item.data(
+        Qt.ItemDataRole.UserRole
+    )
 
-    ask_delete(selected_book_id)
+    ask_delete(book_data,
+        book_list,
+        selected_item,
+        selected_book_id, form_widgets)
 
-def ask_delete(book_id):
-    global selected_book_id, selected_item
+def ask_delete(book_data, book_list, selected_item, book_id, form_widgets):
 
     for book in book_data["books"]:
         if book["id"] == book_id:
@@ -81,12 +83,10 @@ def ask_delete(book_id):
             "Удаление",
             "Удаление отменено")
 
-    title_edit.clear()
-    selected_book_id = None
-    selected_item = None
+    form_widgets["title"].clear()
 
-def find_button_clicked():
-    word = title_edit.text()
+def find_button_clicked(book_data, book_list, form_widgets):
+    word = form_widgets["title"].text()
     found_books = find_book(book_data, word)
 
     book_list.clear()
@@ -100,15 +100,9 @@ def find_button_clicked():
         )
         book_list.addItem(item)
 
-    title_edit.clear()
-    author_edit.clear()
-    genre_edit.clear()
-
-def book_selected(item):
-    global selected_book_id, selected_item
-    selected_book_id = item.data(Qt.ItemDataRole.UserRole)
-
-    selected_item = item
+    form_widgets["title"].clear()
+    form_widgets["author"].clear()
+    form_widgets["genre"].clear()
 
 def create_left_panel():
     left_panel = QWidget()
@@ -158,9 +152,11 @@ def create_left_panel():
         """)
 
     button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
-    button_delete.clicked.connect(delete_button_clicked)
-    button_find.clicked.connect(find_button_clicked)
-    book_list.itemClicked.connect(book_selected)
+    button_delete.clicked.connect(lambda: delete_button_clicked(book_data, book_list,
+                                                            form_widgets))
+    button_find.clicked.connect(lambda: find_button_clicked(book_data, book_list,
+                                                            form_widgets))
+
 
     left_layout.addWidget(book_list)
 
@@ -212,15 +208,8 @@ splitter.addWidget(right_panel)
 
 splitter.setSizes([250, 550])
 
-
-
-
-
-
 label_test = QLabel('Здесь будет основное окно библиотеки')
 right_layout.addWidget(label_test)
-
-
 
 window.show()
 app.exec()
