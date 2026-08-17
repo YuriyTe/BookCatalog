@@ -177,12 +177,73 @@ def create_left_panel():
         "format": format_edit
     }
 
-def tree_item_clicked(item, column):
-    print(item.text(column))
-    print(item.data(0, Qt.ItemDataRole.UserRole))
+def tree_item_clicked(item, column, book_data):
+    path = item.data(
+        0,
+        Qt.ItemDataRole.UserRole
+    )
+    path = Path(path)
+
+    if path.is_dir():
+        print("Выбрана папка: ", path)
+    elif path.is_file():
+        book = find_book_info(path, book_data)
+
+    if book:
+        show_book_info(book)
+
+def show_book_info(book):
+    info = (
+        f"Название: {book['title']}\n"
+        f"Автор: {book['author']}\n"
+        f"Жанр: {book['genre']}\n"
+        f"Год: {book['year']}\n"
+        f"Формат: {book['format']}"
+    )
+    label_test.setText(info)
+
+def find_book_info(path, book_data):
+    print("path: ", path)
+    for book in book_data["books"]:
+        if Path(book["path"]) == path:
+            print("Нашли книгу:")
+            print(book["title"])
+            print(book["author"])
+            print(book["genre"])
+            print(book["year"])
+            print(book["format"])
+    return book
+
+def scan_folder(folder, tree_item):
+    book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt", ".djvu"}
+    for item in folder.iterdir():
+        if item.is_dir():
+            folder_item = QTreeWidgetItem(
+                tree_item,
+                [item.name]
+            )
+            folder_item.setData(
+                0,
+                Qt.ItemDataRole.UserRole,
+                str(item)
+            )
+            scan_folder(item, folder_item)
+
+        elif item.is_file():
+            if item.suffix.lower() in book_formats:
+                book_item = QTreeWidgetItem(
+                    tree_item,
+                    [item.name]
+                )
+
+                book_item.setData(
+                    0,
+                    Qt.ItemDataRole.UserRole,
+                    str(item)
+                )
 
 def choose_folder():
-    book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt"}
+
     folder = QFileDialog.getExistingDirectory(
         window,
         "Выберите папку с книгами"
@@ -199,27 +260,7 @@ def choose_folder():
             str(folder)
         )
 
-        for item in folder.iterdir():
-            if item.is_dir():
-                folder_item = QTreeWidgetItem(
-                    root,
-                    [item.name]
-                )
-
-                folder_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    str(item)
-                )
-            elif item.is_file():
-                if item.suffix.lower() in book_formats:
-                    book_item = QTreeWidgetItem(root, [item.name])
-
-                    book_item.setData(
-                        0,
-                        Qt.ItemDataRole.UserRole,
-                        str(item)
-                    )
+        scan_folder(folder, root)
 
 
 
@@ -262,27 +303,12 @@ splitter.addWidget(left_panel)
 splitter.addWidget(right_panel)
 splitter.setSizes([250, 550])
 
-root = QTreeWidgetItem(tree,["Мои книги"])
-book = QTreeWidgetItem(root, ["Человек-амфибия"])
+tree.itemClicked.connect(lambda item, column: tree_item_clicked(
+    item, column, book_data
+))
 
-book.setData(
-    0,
-    Qt.ItemDataRole.UserRole,
-    "D:/Books/Человек-амфибия.fb2"
-)
-
-book2 = QTreeWidgetItem(root, ["Солярис"])
-
-book2.setData(
-    0,
-    Qt.ItemDataRole.UserRole,
-    "D:/Books/Станислав Лем/Солярис.fb2"
-)
-
-tree.itemClicked.connect(tree_item_clicked)
-
-
-
+label_test = QLabel("Здесь место для информационной панели")
+right_layout.addWidget(label_test)
 
 window.show()
 app.exec()
