@@ -189,18 +189,32 @@ def tree_item_clicked(item, column, book_data):
     elif path.is_file():
         book = find_book_info(path, book_data)
 
-    if book:
-        show_book_info(book)
+        print("TREE:", book["title"])
 
-def show_book_info(book):
-    info = (
-        f"Название: {book['title']}\n"
-        f"Автор: {book['author']}\n"
-        f"Жанр: {book['genre']}\n"
-        f"Год: {book['year']}\n"
+        if book:
+            show_book_info(book, book_info_widgets)
+
+def show_book_info(book, book_info_widgets):
+    print("SHOW:", book["title"])
+
+    book_info_widgets["title"].setText(
+        f"Название: {book['title']}"
+    )
+    book_info_widgets["author"].setText(
+        f"Автор: {book['author']}"
+    )
+    book_info_widgets["genre"].setText(
+        f"Жанр: {book['genre']}"
+    )
+    book_info_widgets["year"].setText(
+        f"Год: {book['year']}"
+    )
+    book_info_widgets["format"].setText(
         f"Формат: {book['format']}"
     )
-    label_test.setText(info)
+    book_info_widgets["path"].setText(
+        f"Путь: {book['path']}"
+    )
 
 def find_book_info(path, book_data):
     print("path: ", path)
@@ -209,10 +223,7 @@ def find_book_info(path, book_data):
             print("Нашли книгу:")
             print(book["title"])
             print(book["author"])
-            print(book["genre"])
-            print(book["year"])
-            print(book["format"])
-    return book
+            return book
 
 def scan_folder(folder, tree_item):
     book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt", ".djvu"}
@@ -262,6 +273,39 @@ def choose_folder():
 
         scan_folder(folder, root)
 
+def create_book_info_panel():
+    panel = QWidget()
+    layout = QVBoxLayout()
+    panel.setLayout(layout)
+
+    title_label = QLabel()
+    title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+    author_label = QLabel()
+    genre_label = QLabel()
+    year_label = QLabel()
+    format_label = QLabel()
+    path_label = QLabel()
+    path_label.setWordWrap(True)
+
+    layout.setSpacing(2)
+    layout.addWidget(title_label)
+    layout.addWidget(author_label)
+    layout.addWidget(genre_label)
+    layout.addWidget(year_label)
+    layout.addWidget(format_label)
+    layout.addWidget(path_label)
+
+    layout.addStretch()
+
+    return panel, {
+        "title": title_label,
+        "author": author_label,
+        "genre": genre_label,
+        "year": year_label,
+        "format": format_label,
+        "path": path_label
+    }
+
 
 
 # ===== Работа с базой =====
@@ -284,9 +328,10 @@ window.setCentralWidget(main_widget)
 
 left_panel, form_widgets = create_left_panel()
 
-right_panel = QWidget()
-right_layout = QVBoxLayout()
-right_panel.setLayout(right_layout)
+tree_panel = QWidget()
+tree_layout = QVBoxLayout()
+tree_panel.setLayout(tree_layout)
+
 
 button_choose_folder = QPushButton("Выбрать папку")
 button_choose_folder.clicked.connect(choose_folder)
@@ -294,21 +339,27 @@ button_choose_folder.clicked.connect(choose_folder)
 tree = QTreeWidget()
 tree.setHeaderLabels(["Книги"])
 
-right_layout.addWidget(button_choose_folder)
-right_layout.addWidget(tree)
+tree_layout.addWidget(button_choose_folder)
+tree_layout.addWidget(tree)
+
+book_info_panel, book_info_widgets = create_book_info_panel()
 
 
 
 splitter.addWidget(left_panel)
-splitter.addWidget(right_panel)
-splitter.setSizes([250, 550])
+splitter.addWidget(tree_panel)
+splitter.addWidget(book_info_panel)
+splitter.setSizes([200, 350, 450])
+splitter.setStyleSheet("""
+    QSplitter::handle {
+        background: #888888; width: 3px;
+    }
+""")
 
 tree.itemClicked.connect(lambda item, column: tree_item_clicked(
     item, column, book_data
 ))
 
-label_test = QLabel("Здесь место для информационной панели")
-right_layout.addWidget(label_test)
 
 window.show()
 app.exec()
