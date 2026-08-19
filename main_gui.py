@@ -3,12 +3,13 @@ import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
-    QTreeWidget, QTreeWidgetItem, QFileDialog
+    QFileDialog, QFileSystemModel, QTreeView
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QDir
 from file_operations import open_database, save_database
 from book_manager import find_book, delete_books, add_book_gui
 from pathlib import Path
+from file_operations import scan_folder
 
 
 # ===== Работа с GUI (функции) =====
@@ -177,19 +178,15 @@ def create_left_panel():
         "format": format_edit
     }
 
-def tree_item_clicked(item, column, book_data):
-    path = item.data(
-        0,
-        Qt.ItemDataRole.UserRole
-    )
+def tree_item_clicked(index, book_data):
+    path = model.filePath(index)
     path = Path(path)
 
     if path.is_dir():
         print("Выбрана папка: ", path)
+
     elif path.is_file():
         book = find_book_info(path, book_data)
-
-        print("TREE:", book["title"])
 
         if book:
             show_book_info(book, book_info_widgets)
@@ -218,60 +215,29 @@ def show_book_info(book, book_info_widgets):
 
 def find_book_info(path, book_data):
     print("path: ", path)
+
     for book in book_data["books"]:
         if Path(book["path"]) == path:
             print("Нашли книгу:")
             print(book["title"])
             print(book["author"])
             return book
-
-def scan_folder(folder, tree_item):
-    book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt", ".djvu"}
-    for item in folder.iterdir():
-        if item.is_dir():
-            folder_item = QTreeWidgetItem(
-                tree_item,
-                [item.name]
-            )
-            folder_item.setData(
-                0,
-                Qt.ItemDataRole.UserRole,
-                str(item)
-            )
-            scan_folder(item, folder_item)
-
-        elif item.is_file():
-            if item.suffix.lower() in book_formats:
-                book_item = QTreeWidgetItem(
-                    tree_item,
-                    [item.name]
-                )
-
-                book_item.setData(
-                    0,
-                    Qt.ItemDataRole.UserRole,
-                    str(item)
-                )
+    return None
 
 def choose_folder():
-
     folder = QFileDialog.getExistingDirectory(
         window,
-        "Выберите папку с книгами"
-    )
+"Выберите папку с книгами")
 
     if folder:
-        folder = Path(folder)
-        tree.clear()
+        window.selected_folder = Path(folder)
 
-        root = QTreeWidgetItem(tree, [folder.name])
-        root.setData(
-            0,
-            Qt.ItemDataRole.UserRole,
-            str(folder)
+        folder_label.setText(
+            f"📁 {window.selected_folder.name}"
         )
 
-        scan_folder(folder, root)
+        root_path = model.setRootPath(folder)
+        tree.setRootIndex(root_path)
 
 def create_book_info_panel():
     panel = QWidget()
@@ -306,6 +272,16 @@ def create_book_info_panel():
         "path": path_label
     }
 
+def add_folder_to_library():
+    if not hasattr(window, "selected_folder"):
+        print("Папка не выбрана")
+        return
+
+    books = scan_folder(window.selected_folder)
+
+    print("НАЙДЕННЫЕ КНИГИ:")
+    for book in books:
+        print(book)
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -315,7 +291,7 @@ app = QApplication(sys.argv)
 
 window = QMainWindow()
 window.setWindowTitle("Book Catalog")
-window.resize(1200, 600)
+window.resize(1000, 600)
 
 splitter = QSplitter(Qt.Orientation.Horizontal)
 
@@ -333,14 +309,34 @@ tree_panel.setLayout(tree_layout)
 
 button_choose_folder = QPushButton("Выбрать папку")
 button_choose_folder.clicked.connect(choose_folder)
+button_add_folder = QPushButton("Добавить открытую папку в библиотеку")
+button_add_folder.clicked.connect(add_folder_to_library)
 
-tree = QTreeWidget()
-tree.setHeaderLabels(["Книги"])
+folder_label = QLabel("Папка не выбрана")
+
+model = QFileSystemModel()
+
+model.setFilter(
+    QDir.Filter.AllDirs |
+    QDir.Filter.Files |
+    QDir.Filter.NoDotAndDotDot
+)
+
+model.setNameFilters([
+    "*.fb2", "*.epub", "*.pdf", "*.mobi", "*.txt", "*.djvu"])
+
+model.setNameFilterDisables(False)
+
+tree = QTreeView()
+tree.setModel(model)
+
 
 tree_layout.addWidget(button_choose_folder)
+tree_layout.addWidget(button_add_folder)
+tree_layout.addWidget(folder_label)
 tree_layout.addWidget(tree)
 
-tree.itemClicked.connect(lambda item, column: tree_item_clicked(item, column, book_data))
+tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
 
 book_info_panel, book_info_widgets = create_book_info_panel()
 

@@ -1,29 +1,28 @@
-import json
-import sys
-from datetime import date
-from validation import validate_database
+from database import open_database, save_database
+from pathlib import Path
+
+BOOK_FORMATS = {
+    ".fb2",
+    ".epub",
+    ".pdf",
+    ".mobi",
+    ".txt",
+    ".djvu",
+}
+
+def scan_folder(folder):
+    books = []
+
+    for item in folder.iterdir():
+        if item.is_dir():
+            books.extend(scan_folder(item))
+
+        elif item.is_file():
+            if item.suffix.lower() in BOOK_FORMATS:
+                books.append(item)
+
+    return books
 
 
-
-def open_database():
-    try:
-        with open('data/book_db.json', 'r', encoding='utf-8') as file:
-            book_data = json.load(file)
-
-    except FileNotFoundError:
-        print('Ошибка: Файл не найден!')
-        sys.exit(1)
-    except json.decoder.JSONDecodeError:
-        print('Ошибка: Неверный формат JSON!')
-        sys.exit(2)
-    else:
-        if validate_database(book_data):
-            return book_data
-
-
-def save_database(book_data):
-        book_data['last_updated'] = date.today().isoformat()
-        with open('data/book_db.json', 'w', encoding='utf-8') as file:
-            json.dump(book_data, file, indent=4, ensure_ascii=False)
 
 
