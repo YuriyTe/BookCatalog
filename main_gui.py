@@ -307,7 +307,6 @@ def create_book_info_panel():
     }
 
 
-
 # ===== Работа с базой =====
 book_data = open_database()
 
@@ -316,7 +315,7 @@ app = QApplication(sys.argv)
 
 window = QMainWindow()
 window.setWindowTitle("Book Catalog")
-window.resize(800, 600)
+window.resize(1200, 600)
 
 splitter = QSplitter(Qt.Orientation.Horizontal)
 
@@ -332,7 +331,6 @@ tree_panel = QWidget()
 tree_layout = QVBoxLayout()
 tree_panel.setLayout(tree_layout)
 
-
 button_choose_folder = QPushButton("Выбрать папку")
 button_choose_folder.clicked.connect(choose_folder)
 
@@ -342,24 +340,18 @@ tree.setHeaderLabels(["Книги"])
 tree_layout.addWidget(button_choose_folder)
 tree_layout.addWidget(tree)
 
+tree.itemClicked.connect(lambda item, column: tree_item_clicked(item, column, book_data))
+
 book_info_panel, book_info_widgets = create_book_info_panel()
-
-
 
 splitter.addWidget(left_panel)
 splitter.addWidget(tree_panel)
 splitter.addWidget(book_info_panel)
-splitter.setSizes([200, 350, 450])
+splitter.setSizes([300, 600, 350])
 splitter.setStyleSheet("""
     QSplitter::handle {
         background: #888888; width: 3px;
-    }
-""")
-
-tree.itemClicked.connect(lambda item, column: tree_item_clicked(
-    item, column, book_data
-))
-
+    }""")
 
 window.show()
 app.exec()
