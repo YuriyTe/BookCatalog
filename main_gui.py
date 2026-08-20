@@ -6,42 +6,13 @@ from PySide6.QtWidgets import (
     QFileDialog, QFileSystemModel, QTreeView
 )
 from PySide6.QtCore import Qt, QDir
-from file_operations import open_database, save_database
-from book_manager import find_book, delete_books, add_book_gui
+from book_manager import find_book, delete_books
 from pathlib import Path
-from file_operations import scan_folder
+from file_operations import scan_folder, create_book_from_file
+from database import open_database, save_database, find_book_by_path, add_book
 
 
 # ===== Работа с GUI (функции) =====
-def add_book(book_data, form_widgets):
-
-    title = form_widgets["title"].text()
-    author = form_widgets["author"].text()
-    genre = form_widgets["genre"].text()
-    year = form_widgets["year"].value()
-    path = form_widgets["path"].text()
-    book_format = form_widgets["format"].currentText()
-
-    new_book = add_book_gui(
-        book_data, title, author, year, genre, path, book_format
-    )
-    save_database(book_data)
-
-    QMessageBox.information(
-        window,
-        "Книга добавлена",
-        f"Название: {title}\n"
-        f"Автор: {author}\n"
-        f"Жанр: {genre}"
-    )
-
-    form_widgets["title"].clear()
-    form_widgets["author"].clear()
-    form_widgets["genre"].clear()
-    form_widgets["path"].clear()
-    form_widgets["format"].setCurrentIndex(0)
-    form_widgets["year"].setValue(2000)
-
 def delete_button_clicked(book_data, form_widgets, book_list):
     selected_item = book_list.currentItem()
 
@@ -153,7 +124,7 @@ def create_left_panel():
         QListWidget {border: 1px solid #888;} 
         """)
 
-    button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
+    #button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
     button_delete.clicked.connect(lambda: delete_button_clicked(book_data, form_widgets,
                                                             book_list))
     button_find.clicked.connect(lambda: find_button_clicked(book_data, form_widgets,
@@ -279,9 +250,19 @@ def add_folder_to_library():
 
     books = scan_folder(window.selected_folder)
 
-    print("НАЙДЕННЫЕ КНИГИ:")
-    for book in books:
-        print(book)
+    for file_path in books:
+        existing_book = find_book_by_path(book_data, file_path)
+
+        if existing_book:
+            print(f"Уже есть в базе: {file_path}")
+            continue
+
+        new_book = create_book_from_file(file_path)
+        add_book(book_data, new_book)
+
+        print(f"Добавлена: {file_path}")
+
+    save_database(book_data)
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -348,6 +329,8 @@ splitter.setStyleSheet("""
     QSplitter::handle {
         background: #888888; width: 3px;
     }""")
+
+
 
 window.show()
 app.exec()
