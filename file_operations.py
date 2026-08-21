@@ -27,6 +27,10 @@ def create_book_from_file(file_path):
         "year": None,
         "first_published": None,
         "genre": [],
+        "annotation": None,
+        "language": None,
+        "cover": None,
+        "isbn": None,
         "path": str(file_path),
         "format": file_path.suffix.lower().lstrip("."),
         "status": "new"

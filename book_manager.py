@@ -127,7 +127,6 @@ def input_required(message):
         else:
             return value
 
-
 def input_year(message):
     while True:
         value = input(message).strip()
@@ -138,7 +137,6 @@ def input_year(message):
             continue
 
         return int(value)
-
 
 def print_books(book_data):
     if not book_data:
@@ -155,7 +153,6 @@ def print_books(book_data):
         print(f'{book["id"]}. {title} — {author}')
 
     print('=' * 30)
-
 
 def delete_books(book_data, id_number):
     for i, book in enumerate(book_data["books"]):
@@ -181,7 +178,6 @@ def duplicates_check(book_data, title):
                 return False
     return True
 
-
 def find_book(book_data, word):
     query_words = word.lower().split()
     found_books = []
@@ -191,4 +187,56 @@ def find_book(book_data, word):
             found_books.append(book)
 
     return found_books
+
+def compare_metadata(book, metadata):
+    differences = {}
+
+    for key, new_value in metadata.items():
+        old_value = book.get(key)
+
+        if old_value != new_value:
+            differences[key] = {
+                "old": old_value,
+                "new": new_value,
+                "empty": is_empty_value(old_value)
+            }
+
+    return differences
+
+def is_empty_value(value):
+    return value is None or value == "" or value == []
+
+def update_book_data(differences, book):
+    conflicts = []
+
+    for field, data in differences.items():
+        if data["empty"]:
+            book[field] = data["new"]
+        else:
+            conflicts.append(field)
+    return book, conflicts
+
+def resolve_conflicts(book, differences, decisions):
+    for field, data in differences.items():
+        if data["empty"]:
+            continue
+        decision = decisions.get(field)
+        if decision == "replace":
+            book[field] = data["new"]
+
+        elif decision == "keep":
+            continue
+        elif decision == "add" and field == "genre":
+            book[field] = add_unique_values(book[field], data["new"])
+        elif decision == "add" and field == "annotation":
+            book[field] = book[field] + "\n\n" + data["new"]
+
+    return book
+
+def add_unique_values(old_values, new_values):
+    for value in new_values:
+        if value not in old_values:
+            old_values.append(value)
+
+    return old_values
 
