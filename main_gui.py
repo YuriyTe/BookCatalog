@@ -6,10 +6,11 @@ from PySide6.QtWidgets import (
     QFileDialog, QFileSystemModel, QTreeView
 )
 from PySide6.QtCore import Qt, QDir
-from book_manager import find_book, delete_books
+from book_manager import find_book, delete_books, compare_metadata
 from pathlib import Path
 from file_operations import scan_folder, create_book_from_file
 from database import open_database, save_database, find_book_by_path, add_book
+from book_manager import update_book_data
 
 
 # ===== Работа с GUI (функции) =====
@@ -163,7 +164,7 @@ def tree_item_clicked(index, book_data):
             show_book_info(book, book_info_widgets)
 
 def show_book_info(book, book_info_widgets):
-    print("SHOW:", book["title"])
+    print("SHOW_name in show_book_info:", book["title"])
 
     book_info_widgets["title"].setText(
         f"Название: {book['title']}"
@@ -185,13 +186,13 @@ def show_book_info(book, book_info_widgets):
     )
 
 def find_book_info(path, book_data):
-    print("path: ", path)
+    print("Найденный путь: ", path)
 
     for book in book_data["books"]:
         if Path(book["path"]) == path:
             print("Нашли книгу:")
-            print(book["title"])
-            print(book["author"])
+            print("Нашли название: ", book["title"])
+            print("Нашли автора", book["author"])
             return book
     return None
 
@@ -243,6 +244,19 @@ def create_book_info_panel():
         "path": path_label
     }
 
+def update_existing_book(existing_book, file_path):
+    new_book = create_book_from_file(file_path)
+
+    differences = compare_metadata(existing_book, new_book)
+
+    if not differences:
+        return
+    existing_book, conflicts = update_book_data(differences, existing_book)
+
+    if conflicts:
+        print("Конфликты:", conflicts)
+
+
 def add_folder_to_library():
     if not hasattr(window, "selected_folder"):
         print("Папка не выбрана")
@@ -254,7 +268,7 @@ def add_folder_to_library():
         existing_book = find_book_by_path(book_data, file_path)
 
         if existing_book:
-            print(f"Уже есть в базе: {file_path}")
+            update_existing_book(existing_book, file_path)
             continue
 
         new_book = create_book_from_file(file_path)

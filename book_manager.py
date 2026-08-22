@@ -192,6 +192,9 @@ def compare_metadata(book, metadata):
     differences = {}
 
     for key, new_value in metadata.items():
+        if key == "path":
+            continue
+
         old_value = book.get(key)
 
         if old_value != new_value:

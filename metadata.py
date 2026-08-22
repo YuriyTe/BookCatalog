@@ -90,7 +90,7 @@ def get_publish_year(publish_info):
     if year is None:
         return None
 
-    return year.text
+    return int(year.text)
 
 def get_isbn(publish_info):
     if publish_info is None:
@@ -163,18 +163,31 @@ def extract_fb2_metadata(root):
 
     return metadata
 
+def parse_fb2(file_path):
+    root = read_fb2(file_path)
+
+    if root is None:
+        return None
+
+    return extract_fb2_metadata(root)
+
+
+
 if __name__ == "__main__":
     book_data = open_database()
     book = book_data["books"][0]
     print(book)
 
-    decisions = {
-        "author": "replace"
-    }
-
     file_path = Path("D:/_BOOKS_TEST/Sci-Fi/Херберт Фрэнк/Дюна  Хроники Дюны/Дюна.fb2")
 
     root = read_fb2(file_path)
+
+    decisions = {
+        "author": "replace",
+        "genre": "add",
+        "annotation": "add"
+    }
+
     print("=========================")
 
     metadata = extract_fb2_metadata(root)
@@ -184,33 +197,19 @@ if __name__ == "__main__":
 
     differences = compare_metadata(book, metadata)
 
+
     print("=========================")
+
+    print("ДО:")
+    print(book)
 
     book, conflicts = update_book_data(differences, book)
-    print('Конфликты:', conflicts)
-
-    print("=========================")
-    print("DECISIONS:", decisions)
-    print("CONFLICTS:", conflicts)
-    print("BEFORE:", book["author"])
-
     book = resolve_conflicts(book, differences, decisions)
 
-    print("AFTER:", book["author"])
+    print("\nПОСЛЕ:")
+    print(book)
+    print("\nКонфликты:", conflicts)
 
-    print("=========================")
-
-    old_genres = ["sf", "adventure"]
-    new_genres = ["sf", "adventure"]
-
-    print("Старые:", old_genres)
-    print("Новые:", new_genres)
-
-    for value in new_genres:
-        if value not in old_genres:
-            old_genres.append(value)
-
-    print("Результат:", old_genres)
 
 
 

@@ -43,6 +43,10 @@ def validate_book(book):
         "year",
         "first_published",
         "genre",
+        "annotation",
+        "language",
+        "cover",
+        "isbn",
         "path",
         "format",
         "status",
@@ -82,6 +86,17 @@ def validate_book(book):
     if not isinstance(book["status"], str):
         return False
 
-    return True
+    if book["annotation"] is not None and not isinstance(book["annotation"], str):
+        return False
 
+    if book["language"] is not None and not isinstance(book["language"], str):
+        return False
+
+    if book["cover"] is not None and not isinstance(book["cover"], str):
+        return False
+
+    if book["isbn"] is not None and not isinstance(book["isbn"], str):
+        return False
+
+    return True
 
