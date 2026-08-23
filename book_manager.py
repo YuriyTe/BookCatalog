@@ -224,6 +224,14 @@ def resolve_conflicts(book, differences, decisions):
         if data["empty"]:
             continue
         decision = decisions.get(field)
+
+        print(
+            "FIELD:", field,
+            "DECISION:", decision,
+            "OLD:", data["old"],
+            "NEW:", data["new"]
+        )
+
         if decision == "replace":
             book[field] = data["new"]
 

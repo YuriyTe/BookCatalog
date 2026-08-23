@@ -3,14 +3,22 @@ import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
-    QFileDialog, QFileSystemModel, QTreeView
+    QFileDialog, QFileSystemModel, QTreeView, QDialog, QRadioButton, QCheckBox,
+    QTextEdit
 )
 from PySide6.QtCore import Qt, QDir
 from book_manager import find_book, delete_books, compare_metadata
 from pathlib import Path
 from file_operations import scan_folder, create_book_from_file
 from database import open_database, save_database, find_book_by_path, add_book
-from book_manager import update_book_data
+from book_manager import update_book_data, resolve_conflicts
+
+# ===== Константы =====
+FIELD_NAMES = {
+    "author": "Автор",
+    "genre": "Жанр",
+    "annotation": "Аннотация",
+}
 
 
 # ===== Работа с GUI (функции) =====
@@ -244,7 +252,7 @@ def create_book_info_panel():
         "path": path_label
     }
 
-def update_existing_book(existing_book, file_path):
+def update_existing_book(existing_book, file_path, decisions):
     new_book = create_book_from_file(file_path)
 
     differences = compare_metadata(existing_book, new_book)
@@ -254,10 +262,36 @@ def update_existing_book(existing_book, file_path):
     existing_book, conflicts = update_book_data(differences, existing_book)
 
     if conflicts:
-        print("Конфликты:", conflicts)
+        current_decisions = decisions.copy()
 
+        for field in conflicts:
+            if field in decisions:
+                decision = decisions[field]
+            else:
+                data = differences[field]
+
+                decision, apply_to_all = show_conflict_dialog(
+                field,
+                data["old"],
+                data["new"]
+            )
+                current_decisions[field] = decision
+
+                if apply_to_all:
+                    decisions[field] = decision
+
+        print("DECISIONS:", current_decisions)
+
+        existing_book = resolve_conflicts(
+            existing_book,
+            differences,
+            current_decisions
+        )
+        print("AFTER RESOLVE:", existing_book)
 
 def add_folder_to_library():
+    decisions = {}
+
     if not hasattr(window, "selected_folder"):
         print("Папка не выбрана")
         return
@@ -268,7 +302,7 @@ def add_folder_to_library():
         existing_book = find_book_by_path(book_data, file_path)
 
         if existing_book:
-            update_existing_book(existing_book, file_path)
+            update_existing_book(existing_book, file_path, decisions)
             continue
 
         new_book = create_book_from_file(file_path)
@@ -277,6 +311,67 @@ def add_folder_to_library():
         print(f"Добавлена: {file_path}")
 
     save_database(book_data)
+
+def show_conflict_dialog(field, old_value, new_value, parent=None):
+    field_name = FIELD_NAMES.get(field, field)
+
+    dialog = QDialog(parent)
+    dialog.setWindowTitle("Конфликт метаданных")
+    dialog.setMinimumWidth(500)
+    dialog.setMaximumWidth(700)
+
+    layout = QVBoxLayout(dialog)
+
+    layout.addWidget(QLabel(f"Конфликт: {field_name}"))
+
+    old_text = QTextEdit()
+    old_text.setPlainText(str(old_value))
+    old_text.setReadOnly(True)
+    old_text.setMaximumHeight(120)
+
+    new_text = QTextEdit()
+    new_text.setPlainText(str(new_value))
+    new_text.setReadOnly(True)
+    new_text.setMaximumHeight(120)
+
+    layout.addWidget(QLabel("В базе:"))
+    layout.addWidget(old_text)
+
+    layout.addWidget(QLabel("В файле:"))
+    layout.addWidget(new_text)
+
+    replace_radio = QRadioButton("Заменить")
+    keep_radio = QRadioButton("Оставить")
+
+    layout.addWidget(replace_radio)
+    layout.addWidget(keep_radio)
+
+    if field in ("genre", "annotation"):
+        add_radio = QRadioButton("Добавить")
+        layout.addWidget(add_radio)
+
+    apply_all = QCheckBox("Применять выбранное решение для этого поля")
+    layout.addWidget(apply_all)
+
+    button_ok = QPushButton("Применить")
+    layout.addWidget(button_ok)
+
+    button_ok.clicked.connect(dialog.accept)
+
+    if dialog.exec():
+        apply_to_all = apply_all.isChecked()
+
+        if replace_radio.isChecked():
+            return "replace", apply_to_all
+
+        if keep_radio.isChecked():
+            return "keep", apply_to_all
+
+        if field in ("genre", "annotation") and add_radio.isChecked():
+            return "add", apply_to_all
+
+    return None, False
+
 
 # ===== Работа с базой =====
 book_data = open_database()
