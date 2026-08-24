@@ -4,13 +4,15 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel,
     QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
     QFileDialog, QFileSystemModel, QTreeView, QDialog, QRadioButton, QCheckBox,
-    QTextEdit
+    QTextEdit, QTabWidget
 )
-from PySide6.QtCore import Qt, QDir
+from PySide6.QtCore import Qt, QDir, QSize
+from PySide6.QtGui import QIcon, QPixmap
 from book_manager import find_book, delete_books, compare_metadata
 from pathlib import Path
 from file_operations import scan_folder, create_book_from_file
-from database import open_database, save_database, find_book_by_path, add_book
+from database import (open_database, save_database, find_book_by_path, add_book,
+                      find_book_by_id)
 from book_manager import update_book_data, resolve_conflicts
 
 # ===== Константы =====
@@ -22,7 +24,7 @@ FIELD_NAMES = {
 
 
 # ===== Работа с GUI (функции) =====
-def delete_button_clicked(book_data, form_widgets, book_list):
+def delete_button_clicked(book_data, form_widgets, book_list, book_shelf):
     selected_item = book_list.currentItem()
 
     if selected_item is None:
@@ -34,9 +36,9 @@ def delete_button_clicked(book_data, form_widgets, book_list):
     ask_delete(book_data,
         book_list,
         selected_item,
-        selected_book_id, form_widgets)
+        selected_book_id, form_widgets, book_shelf)
 
-def ask_delete(book_data, book_list, selected_item, book_id, form_widgets):
+def ask_delete(book_data, book_list, selected_item, book_id, form_widgets, book_shelf):
 
     for book in book_data["books"]:
         if book["id"] == book_id:
@@ -60,6 +62,8 @@ def ask_delete(book_data, book_list, selected_item, book_id, form_widgets):
             window,
             "Удаление",
             "Книга удалена")
+
+        refresh_book_shelf(book_data, book_shelf)
     else:
         QMessageBox.information(
             window,
@@ -135,7 +139,7 @@ def create_left_panel():
 
     #button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
     button_delete.clicked.connect(lambda: delete_button_clicked(book_data, form_widgets,
-                                                            book_list))
+                                                            book_list, book_shelf))
     button_find.clicked.connect(lambda: find_button_clicked(book_data, form_widgets,
                                                             book_list))
 
@@ -172,7 +176,6 @@ def tree_item_clicked(index, book_data):
             show_book_info(book, book_info_widgets)
 
 def show_book_info(book, book_info_widgets):
-    print("SHOW_name in show_book_info:", book["title"])
 
     book_info_widgets["title"].setText(
         f"Название: {book['title']}"
@@ -225,7 +228,8 @@ def create_book_info_panel():
     panel.setLayout(layout)
 
     title_label = QLabel()
-    title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+    title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+    title_label.setWordWrap(True)
     author_label = QLabel()
     genre_label = QLabel()
     year_label = QLabel()
@@ -280,14 +284,11 @@ def update_existing_book(existing_book, file_path, decisions):
                 if apply_to_all:
                     decisions[field] = decision
 
-        print("DECISIONS:", current_decisions)
-
         existing_book = resolve_conflicts(
             existing_book,
             differences,
             current_decisions
         )
-        print("AFTER RESOLVE:", existing_book)
 
 def add_folder_to_library():
     decisions = {}
@@ -311,6 +312,7 @@ def add_folder_to_library():
         print(f"Добавлена: {file_path}")
 
     save_database(book_data)
+    refresh_book_shelf(book_data, book_shelf)
 
 def show_conflict_dialog(field, old_value, new_value, parent=None):
     field_name = FIELD_NAMES.get(field, field)
@@ -372,6 +374,33 @@ def show_conflict_dialog(field, old_value, new_value, parent=None):
 
     return None, False
 
+def load_books_to_shelf(book_data, book_shelf):
+    for book in book_data["books"]:
+        pixmap = QPixmap(100, 150)
+        pixmap.fill(Qt.GlobalColor.lightGray)
+
+        item = QListWidgetItem(
+            QIcon(pixmap),
+            book["title"]
+        )
+        item.setData(
+            Qt.ItemDataRole.UserRole,
+            book["id"]
+        )
+
+        book_shelf.addItem(item)
+
+def refresh_book_shelf(book_data, book_shelf):
+    book_shelf.clear()
+    load_books_to_shelf(book_data, book_shelf)
+
+def select_book_from_shelf(item):
+    book_id = item.data(Qt.ItemDataRole.UserRole)
+
+    book = find_book_by_id(book_data, book_id)
+
+    if book:
+        show_book_info(book, book_info_widgets)
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -406,10 +435,8 @@ folder_label = QLabel("Папка не выбрана")
 
 model = QFileSystemModel()
 
-model.setFilter(
-    QDir.Filter.AllDirs |
-    QDir.Filter.Files |
-    QDir.Filter.NoDotAndDotDot
+model.setFilter(QDir.Filter.AllDirs |
+    QDir.Filter.Files | QDir.Filter.NoDotAndDotDot
 )
 
 model.setNameFilters([
@@ -420,11 +447,44 @@ model.setNameFilterDisables(False)
 tree = QTreeView()
 tree.setModel(model)
 
-
 tree_layout.addWidget(button_choose_folder)
 tree_layout.addWidget(button_add_folder)
 tree_layout.addWidget(folder_label)
-tree_layout.addWidget(tree)
+
+# начало вставки вкладок для дерева и книжной полки
+tabs = QTabWidget()
+
+# вкладка дерева
+tree_tab = QWidget()
+tree_tab_layout = QVBoxLayout(tree_tab)
+tree_tab_layout.addWidget(tree)
+tree_layout.addWidget(tabs)
+
+# вкладка книг
+book_shelf_tab = QWidget()
+book_shelf_layout = QVBoxLayout(book_shelf_tab)
+
+book_shelf = QListWidget()
+book_shelf_layout.addWidget(book_shelf)
+
+tabs.addTab(tree_tab, "Дерево")
+tabs.addTab(book_shelf_tab, "Книги")
+
+pixmap = QPixmap(100, 150)
+pixmap.fill(Qt.GlobalColor.lightGray)
+
+book_shelf.setViewMode(QListWidget.ViewMode.IconMode)
+book_shelf.setIconSize(QSize(100, 150))
+book_shelf.setGridSize(QSize(115, 175))
+
+book_shelf.setFlow(QListWidget.Flow.LeftToRight)
+book_shelf.setWrapping(True)
+book_shelf.setMovement(QListWidget.Movement.Static)
+book_shelf.setResizeMode(QListWidget.ResizeMode.Adjust)
+
+load_books_to_shelf(book_data, book_shelf)
+
+book_shelf.itemClicked.connect(select_book_from_shelf)
 
 tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
 
@@ -438,7 +498,8 @@ splitter.setStyleSheet("""
     QSplitter::handle {
         background: #888888; width: 3px;
     }""")
-
+book_info_panel.setMinimumWidth(300)
+book_info_panel.setMaximumWidth(400)
 
 
 window.show()

@@ -90,10 +90,8 @@ def add_books(book_data):
         return
     added_book["path"] = path
 
-
     book_data["books"].append(added_book)
     book_data["book_count"] = len(book_data["books"])
-    print(f"Книга '{added_book["title"]}' добавлена (ID: {added_book["id"]})")
 
 def add_book_gui(book_data, title, author, year, genre, path, book_format, status):
     if book_data["books"]:
@@ -158,7 +156,7 @@ def delete_books(book_data, id_number):
     for i, book in enumerate(book_data["books"]):
         if book["id"] == id_number:
             deleted_book = book_data["books"].pop(i)
-
+            book_data["book_count"] = len(book_data["books"])
             break
     else:
         print(f"Книга с id {id_number} не найдена.")
@@ -225,12 +223,6 @@ def resolve_conflicts(book, differences, decisions):
             continue
         decision = decisions.get(field)
 
-        print(
-            "FIELD:", field,
-            "DECISION:", decision,
-            "OLD:", data["old"],
-            "NEW:", data["new"]
-        )
 
         if decision == "replace":
             book[field] = data["new"]

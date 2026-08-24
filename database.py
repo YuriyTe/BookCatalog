@@ -55,3 +55,10 @@ def find_book_by_path(book_data, path):
             return book
 
     return None
+
+def find_book_by_id(book_data, book_id):
+    for book in book_data["books"]:
+        if book["id"] == book_id:
+            return book
+
+    return None
