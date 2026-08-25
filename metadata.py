@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET, base64
 from pathlib import Path
 from book_manager import compare_metadata, update_book_data, resolve_conflicts
 from database import open_database
@@ -156,9 +156,8 @@ def extract_fb2_metadata(root):
         "year": get_publish_year(publish_info),
         "isbn": get_isbn(publish_info),
         "language": get_language(title_info),
-        "annotation": get_annotation_text(
-            get_annotation(title_info)
-        )
+        "annotation": get_annotation_text(get_annotation(title_info),),
+        "cover": None
     }
 
     return metadata
@@ -171,45 +170,84 @@ def parse_fb2(file_path):
 
     return extract_fb2_metadata(root)
 
+def debug_cover(root):
+    pass
+    # coverpage = root.find(f".//{FB2_NS}coverpage")
+    #
+    # if coverpage is None:
+    #     print("COVERPAGE не найден")
+    # else:
+    #     print("=== COVERPAGE ===")
+    #     print(ET.tostring(coverpage, encoding="unicode"))
+    #
+    # print("\n=== BINARY ===")
+    #
+    # binaries = root.findall(f".//{FB2_NS}binary")
+    #
+    # if not binaries:
+    #     print("BINARY не найден")
+    #     return
+    #
+    # for binary in binaries:
+    #     print(
+    #         "id:",
+    #         binary.get("id"),
+    #         "| content-type:",
+    #         binary.get("content-type")
+    #     )
+
+def get_cover(root):
+    coverpage = root.find(f".//{FB2_NS}coverpage")
+
+    if coverpage is None:
+        return None
+
+    image = coverpage.find(f"{FB2_NS}image")
+
+    if image is None:
+        return None
+
+    href = image.get("{http://www.w3.org/1999/xlink}href")
+
+    if not href:
+        return None
+
+    cover_id = href.lstrip("#")
+
+    binary = root.find(
+        f".//{FB2_NS}binary[@id='{cover_id}']"
+    )
+
+    if binary is None or not binary.text:
+        return None
+
+    try:
+        return base64.b64decode(binary.text)
+    except (ValueError, base64.binascii.Error):
+        return None
+
+def get_fb2_cover(file_path):
+    root = read_fb2(file_path)
+
+    if root is None:
+        return None
+
+    return get_cover(root)
 
 
 if __name__ == "__main__":
     book_data = open_database()
     book = book_data["books"][0]
-    print(book)
+
 
     file_path = Path("D:/_BOOKS_TEST/Sci-Fi/Херберт Фрэнк/Дюна  Хроники Дюны/Дюна.fb2")
 
     root = read_fb2(file_path)
-
-    decisions = {
-        "author": "replace",
-        "genre": "add",
-        "annotation": "add"
-    }
-
-    print("=========================")
-
     metadata = extract_fb2_metadata(root)
-    print("Метадата: ", metadata)
 
-    print("=========================")
+    cover = get_cover(root)
 
-    differences = compare_metadata(book, metadata)
-
-
-    print("=========================")
-
-    print("ДО:")
-    print(book)
-
-    book, conflicts = update_book_data(differences, book)
-    book = resolve_conflicts(book, differences, decisions)
-
-    print("\nПОСЛЕ:")
-    print(book)
-    print("\nКонфликты:", conflicts)
-
+    print("COVER BYTES:", len(cover) if cover else None)
 
 
 

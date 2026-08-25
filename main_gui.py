@@ -14,6 +14,8 @@ from file_operations import scan_folder, create_book_from_file
 from database import (open_database, save_database, find_book_by_path, add_book,
                       find_book_by_id)
 from book_manager import update_book_data, resolve_conflicts
+from metadata import get_fb2_cover
+
 
 # ===== Константы =====
 FIELD_NAMES = {
@@ -26,6 +28,11 @@ FIELD_NAMES = {
 # ===== Работа с GUI (функции) =====
 def delete_button_clicked(book_data, form_widgets, book_list, book_shelf):
     selected_item = book_list.currentItem()
+    selected_widget = book_list
+
+    if selected_item is None:
+        selected_item = book_shelf.currentItem()
+        selected_widget = book_shelf
 
     if selected_item is None:
         return
@@ -143,7 +150,6 @@ def create_left_panel():
     button_find.clicked.connect(lambda: find_button_clicked(book_data, form_widgets,
                                                             book_list))
 
-
     left_layout.addWidget(book_list)
 
     left_layout.addStretch()
@@ -177,15 +183,13 @@ def tree_item_clicked(index, book_data):
 
 def show_book_info(book, book_info_widgets):
 
-    book_info_widgets["title"].setText(
-        f"Название: {book['title']}"
+    book_info_widgets["title"].setText(f"Название: {book['title']}"
     )
-    book_info_widgets["author"].setText(
-        f"Автор: {book['author']}"
+    book_info_widgets["author"].setText(f"Автор: {book['author']}"
     )
-    book_info_widgets["genre"].setText(
-        f"Жанр: {book['genre']}"
+    book_info_widgets["genre"].setText(f"Жанр: {book['genre']}"
     )
+    book_info_widgets["annotation"].setText(f"Аннотация: {book['annotation']}")
     book_info_widgets["year"].setText(
         f"Год: {book['year']}"
     )
@@ -197,7 +201,6 @@ def show_book_info(book, book_info_widgets):
     )
 
 def find_book_info(path, book_data):
-    print("Найденный путь: ", path)
 
     for book in book_data["books"]:
         if Path(book["path"]) == path:
@@ -232,6 +235,8 @@ def create_book_info_panel():
     title_label.setWordWrap(True)
     author_label = QLabel()
     genre_label = QLabel()
+    annotation_label = QLabel()
+    annotation_label.setWordWrap(True)
     year_label = QLabel()
     format_label = QLabel()
     path_label = QLabel()
@@ -241,6 +246,7 @@ def create_book_info_panel():
     layout.addWidget(title_label)
     layout.addWidget(author_label)
     layout.addWidget(genre_label)
+    layout.addWidget(annotation_label)
     layout.addWidget(year_label)
     layout.addWidget(format_label)
     layout.addWidget(path_label)
@@ -251,6 +257,7 @@ def create_book_info_panel():
         "title": title_label,
         "author": author_label,
         "genre": genre_label,
+        "annotation": annotation_label,
         "year": year_label,
         "format": format_label,
         "path": path_label
@@ -308,8 +315,6 @@ def add_folder_to_library():
 
         new_book = create_book_from_file(file_path)
         add_book(book_data, new_book)
-
-        print(f"Добавлена: {file_path}")
 
     save_database(book_data)
     refresh_book_shelf(book_data, book_shelf)
@@ -376,8 +381,24 @@ def show_conflict_dialog(field, old_value, new_value, parent=None):
 
 def load_books_to_shelf(book_data, book_shelf):
     for book in book_data["books"]:
-        pixmap = QPixmap(100, 150)
-        pixmap.fill(Qt.GlobalColor.lightGray)
+        cover = None
+
+        if book["format"] == "fb2":
+            cover = get_fb2_cover(book["path"])
+
+        if cover:
+            pixmap = QPixmap()
+            pixmap.loadFromData(cover)
+            pixmap = pixmap.scaled(
+                100,
+                150,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+
+        else:
+            pixmap = QPixmap(100, 150)
+            pixmap.fill(Qt.GlobalColor.lightGray)
 
         item = QListWidgetItem(
             QIcon(pixmap),
@@ -493,6 +514,9 @@ book_info_panel, book_info_widgets = create_book_info_panel()
 splitter.addWidget(left_panel)
 splitter.addWidget(tree_panel)
 splitter.addWidget(book_info_panel)
+splitter.setCollapsible(0, False)
+splitter.setCollapsible(2, False)
+
 splitter.setSizes([300, 600, 350])
 splitter.setStyleSheet("""
     QSplitter::handle {
