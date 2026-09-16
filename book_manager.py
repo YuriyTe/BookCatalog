@@ -40,7 +40,7 @@ def menu_find_book(book_data):
             found_books = find_book(book_data, words)
             if found_books:
                 for book in (found_books):
-                    print(f'{book["id"]}. {book["title"]} - {book["author"]}')
+                    print(f'{book["book_id"]}. {book["title"]} - {book["author"]}')
                 result = input('Это то что вы искали (y/n): ').strip().lower()
                 if result == 'y':
                     print('Отправляем книгу в программу для чтения') # For now,
@@ -52,13 +52,13 @@ def menu_find_book(book_data):
 
 # Add books to the library
 def add_books(book_data):
-    max_id = max((book.get("id", 0) for book in book_data["books"]), default=0)
+    max_id = max((book.get("book_id", 0) for book in book_data["books"]), default=0)
     added_book = {
-      "id": max_id + 1,
+      "book_id": max_id + 1,
       "title": "",
       "author": "",
-      "year": 0,
-      "genre": [],
+      "publication_year": 0,
+      "genres": [],
       "path": "",
       "format": "fb2"
     }
@@ -77,13 +77,13 @@ def add_books(book_data):
     year = input_year('Введи год издания')
     if year is None:
         return
-    added_book["year"] =   year
+    added_book["publication_year"] =   year
 
     genre = input_required('Введи жанр, (если больше одного, через запятую)')
     if genre is None:
         return
     genre = [g.strip() for g in genre.split(',') if g.strip()]
-    added_book["genre"] =  genre
+    added_book["genres"] =  genre
 
     path = input_required('Введи путь к директории')
     if path is None:
@@ -95,16 +95,16 @@ def add_books(book_data):
 
 def add_book_gui(book_data, title, author, year, genre, path, book_format, status):
     if book_data["books"]:
-        new_id = max(book["id"] for book in book_data["books"]) + 1
+        new_id = max(book["book_id"] for book in book_data["books"]) + 1
     else:
         new_id = 1
     new_book = {
-    "id": new_id,
+    "book_id": new_id,
     "title": title,
     "author": author,
-    "year": year,
-    "first_published": None,
-    "genre": genre,
+    "publication_year": year,
+    "first_publication_year": None,
+    "genres": genre,
     "path": path,
     "format": book_format,
     "status": "new"
@@ -148,13 +148,13 @@ def print_books(book_data):
         validate_book(book)
         title = book.get("title", "Нет названия")
         author = book.get("author", "нет имени автора")
-        print(f'{book["id"]}. {title} — {author}')
+        print(f'{book["book_id"]}. {title} — {author}')
 
     print('=' * 30)
 
 def delete_books(book_data, id_number):
     for i, book in enumerate(book_data["books"]):
-        if book["id"] == id_number:
+        if book["book_id"] == id_number:
             deleted_book = book_data["books"].pop(i)
             book_data["book_count"] = len(book_data["books"])
             break
@@ -229,7 +229,7 @@ def resolve_conflicts(book, differences, decisions):
 
         elif decision == "keep":
             continue
-        elif decision == "add" and field == "genre":
+        elif decision == "add" and field == "genres":
             book[field] = add_unique_values(book[field], data["new"])
         elif decision == "add" and field == "annotation":
             book[field] = book[field] + "\n\n" + data["new"]

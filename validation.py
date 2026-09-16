@@ -37,12 +37,12 @@ def validate_book(book):
         return False
 
     required_keys = {
-        "id",
+        "book_id",
         "title",
         "author",
-        "year",
-        "first_published",
-        "genre",
+        "publication_year",
+        "first_publication_year",
+        "genres",
         "annotation",
         "language",
         "cover",
@@ -54,7 +54,7 @@ def validate_book(book):
     if not required_keys.issubset(book.keys()):
         return False
 
-    if not isinstance(book["id"], int):
+    if not isinstance(book["book_id"], int):
         return False
 
     if not isinstance(book["title"], str):
@@ -63,18 +63,18 @@ def validate_book(book):
     if book["author"] is not None and not isinstance(book["author"], str):
         return False
 
-    if book["year"] is not None and not isinstance(book["year"], int):
+    if book["publication_year"] is not None and not isinstance(book["publication_year"], int):
         return False
 
     if (
-            book["first_published"] is not None
-            and not isinstance(book["first_published"], int)
+            book["first_publication_year"] is not None
+            and not isinstance(book["first_publication_year"], int)
     ):
         return False
-    if not isinstance(book["genre"], list):
+    if not isinstance(book["genres"], list):
         return False
 
-    if not all(isinstance(genre, str) for genre in book["genre"]):
+    if not all(isinstance(genre, str) for genre in book["genres"]):
         return False
 
     if not isinstance(book["path"], str):

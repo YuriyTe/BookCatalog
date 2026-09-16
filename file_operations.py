@@ -27,9 +27,9 @@ def create_book_from_file(file_path):
     new_book = {
         "title": file_path.stem,
         "author": None,
-        "year": None,
-        "first_published": None,
-        "genre": [],
+        "publication_year": None,
+        "first_publication_year": None,
+        "genres": [],
         "annotation": None,
         "language": None,
         "cover": None,

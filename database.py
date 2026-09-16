@@ -31,11 +31,11 @@ def save_database(book_data):
 
 def add_book(book_data, new_book):
     if book_data["books"]:
-        new_id = max(book["id"] for book in book_data["books"]) + 1
+        new_id = max(book["book_id"] for book in book_data["books"]) + 1
     else:
         new_id = 1
 
-    new_book["id"] = new_id
+    new_book["book_id"] = new_id
 
     if not validate_book(new_book):
         return None
@@ -58,7 +58,7 @@ def find_book_by_path(book_data, path):
 
 def find_book_by_id(book_data, book_id):
     for book in book_data["books"]:
-        if book["id"] == book_id:
+        if book["book_id"] == book_id:
             return book
 
     return None

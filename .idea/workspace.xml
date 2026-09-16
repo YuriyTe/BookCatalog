@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/BookCatalog.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="Version 0.0.22&#10;&#10;1. Обложки из файлов fb2;&#10;2. Удаление книг с выбором на полке.&#10;следующй этап множественный выбор.">
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/book_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/book_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_operations.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_operations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/validation.py" beforeDir="false" afterPath="$PROJECT_DIR$/validation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,26 +28,76 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 5
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;YuriyTe&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/YuriyTe/BookCatalog.git&quot;,
+    &quot;accountId&quot;: &quot;fee84d3b-5f7c-48f8-b0e3-1cf391c587fd&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="3HFXGqZnLVo0dlJZ9oG66Y7opzH" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.gui_test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_gui.executor&quot;: &quot;Run&quot;,
+    &quot;Python.metadata.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;deletionFromPopupRequiresConfirmation&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;
   }
-}]]></component>
-  <component name="RunManager">
+}</component>
+  <component name="RunManager" selected="Python.main_gui">
+    <configuration name="josm to exel" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BookCatalog" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="D:\_2026_Python_projects\BookCatalog\josm to exel.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BookCatalog" />
       <option name="ENV_FILES" value="" />
@@ -69,9 +121,58 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="main_gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BookCatalog" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="D:\_2026_Python_projects\BookCatalog\main_gui.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="metadata" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BookCatalog" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="RUN_TOOL" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/metadata.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main_gui" />
+        <item itemvalue="Python.metadata" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.josm to exel" />
       </list>
     </recent_temporary>
   </component>
@@ -90,6 +191,278 @@
       <option name="presentableId" value="Default" />
       <updated>1785464697538</updated>
     </task>
+    <task id="LOCAL-00001" summary="Version 0.0.1&#10;&#10;First working version of BookCatalog">
+      <option name="closed" value="true" />
+      <created>1785466108911</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1785466108911</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Version 0.0.1.1&#10;&#10;Added book input and display">
+      <option name="closed" value="true" />
+      <created>1785498154846</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1785498154846</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Version 0.0.3&#10;&#10;Added main menu and separated book management into module">
+      <option name="closed" value="true" />
+      <created>1785517015576</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1785517015576</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Version 0.0.4&#10;&#10;Added delete_books and confi">
+      <option name="closed" value="true" />
+      <created>1785574629665</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1785574629665</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Version 0.0.5&#10;&#10;Added find_books">
+      <option name="closed" value="true" />
+      <created>1785688109199</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1785688109199</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Version 0.0.5&#10;&#10;переход на формат json&#10;переделаны:&#10;показ списка книг&#10;добавление книги&#10;удаление книги">
+      <option name="closed" value="true" />
+      <created>1785946850247</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1785946850247</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Version 0.0.7&#10;&#10;Добавлена валидация структуры JSON-базы данных.">
+      <option name="closed" value="true" />
+      <created>1786182561137</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1786182561137</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Version 0.0.7(t)&#10;&#10;тестируем GUI">
+      <option name="closed" value="true" />
+      <created>1786445465208</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1786445465208</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Version 0.0.7(t)&#10;&#10;тестируем GUI">
+      <option name="closed" value="true" />
+      <created>1786446825941</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1786446825941</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Version 0.0.7(t)&#10;&#10;тестируем GUI">
+      <option name="closed" value="true" />
+      <created>1786453765638</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1786453765638</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Version 0.0.7(t)&#10;&#10;тестируем GUI">
+      <option name="closed" value="true" />
+      <created>1786453773646</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1786453773646</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Version 0.0.8&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;списка книг&#10;(выбор книг из списка не работает)">
+      <option name="closed" value="true" />
+      <created>1786539000634</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1786539000634</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Version 0.0.9&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;списка книг&#10;настроили удаление книги после клика в списке">
+      <option name="closed" value="true" />
+      <created>1786621050962</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1786621050962</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Version 0.0.10&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;удаление теперь работает и удаляет запись и из файла json&#10;функцию close_database() переназвал save_database()&#10;порядок в GUI&#10;убрал временные (print)">
+      <option name="closed" value="true" />
+      <created>1786702286135</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1786702286135</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Version 0.0.10&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;удаление теперь работает и удаляет запись и из файла json&#10;функцию close_database() переназвал save_database()&#10;порядок в GUI&#10;убрал временные (print)">
+      <option name="closed" value="true" />
+      <created>1786702347496</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1786702347496</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Version 0.0.11&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;настроена функция добавления книги в файл josm">
+      <option name="closed" value="true" />
+      <created>1786710875424</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1786710875424</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Version 0.0.12&#10;&#10;добавление в GUI окна основной библиотеки&#10;кнопки и строки помещены в левую колонку &#10;добавление в GUI&#10;перенос формирования левой колонки в функцию create_left_panel&#10;настроена работа кнопки &quot;Добавить&quot;">
+      <option name="closed" value="true" />
+      <created>1786794269573</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1786794269573</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Version 0.0.13&#10;&#10;продолжение работы с GUI&#10;настроена работа кнопок&#10;&quot;Найти&quot; и &quot;Удалить&quot;">
+      <option name="closed" value="true" />
+      <created>1786876926670</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1786876926670</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Version 0.0.14&#10;&#10;продолжение работы с GUI&#10;в правую часть добавлено дерево файлов (функция не доделана)">
+      <option name="closed" value="true" />
+      <created>1786884481678</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1786884481678</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Version 0.0.15&#10;&#10;продолжение работы с GUI&#10;в дерево файлов добавлена рекурсия, теперь сканирует все подпапки в выбранной папке. &#10;добавлен задел для информационной панели. Завтра её нужно вынести в отдельную функцию">
+      <option name="closed" value="true" />
+      <created>1786969770965</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1786969770965</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Version 0.0.16&#10;&#10;продолжение работы с GUI&#10;перекомпановка с помощью QSplitter на три части.&#10;трёхколоночная структура на QSplitter работает, информационная панель стала самостоятельным QWidget, а её содержимое создаётся внутри create_book_info_panel()&#10;границы между колонками можно двигать;&#10;дерево не скачет из-за длинных путей;&#10;длинный путь переносится внутри информационной панели;&#10;информация собрана компактно сверху;&#10;при выборе другой книги правая колонка сохраняет размер.">
+      <option name="closed" value="true" />
+      <created>1787055599022</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1787055599023</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Version 0.0.16&#10;&#10;продолжение работы с GUI&#10;перекомпановка с помощью QSplitter на три части.&#10;трёхколоночная структура на QSplitter работает, информационная панель стала самостоятельным QWidget, а её содержимое создаётся внутри create_book_info_panel()&#10;границы между колонками можно двигать;&#10;дерево не скачет из-за длинных путей;&#10;длинный путь переносится внутри информационной панели;&#10;информация собрана компактно сверху;&#10;при выборе другой книги правая колонка сохраняет размер.">
+      <option name="closed" value="true" />
+      <created>1787135216312</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1787135216312</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Version 0.0.17&#10;&#10;Перешли с QTreeWidget на QTreeView + QFileSystemModel.&#10;Убрали старую рекурсивную scan_folder(), которая вручную создавала QTreeWidgetItem.&#10;Сделали просмотр файлов независимым от базы данных.&#10;Добавили фильтрацию, чтобы дерево показывало только папки и поддерживаемые книжные форматы:&#10;.fb2, .epub, .pdf, .mobi, .txt, .djvu.&#10;Переделали обработку клика по файлу под QTreeView: теперь путь берётся через model.filePath(index).&#10;Исправили find_book_info(), чтобы при отсутствии книги она возвращала None, а программа не падала.&#10;Создали новую scan_folder() уже в file_operations.py. Теперь она не работает с GUI, а просто рекурсивно находит книжные файлы и возвращает список Path.&#10;Разделили два действия:&#10;«Выбрать папку» только показывает её содержимое, а «Добавить в библиотеку» в будущем будет запускать сканирование.&#10;Добавили selected_folder, чтобы помнить выбранную пользователем папку.&#10;Добавили folder_label, где показывается название выбранной папки.&#10;В итоге дерево показывает содержимое выбранной папки, а сама папка отображается отдельно над деревом.&#10;пришли к архитектуре:&#10;Выбор папки&#10;    ↓&#10;просмотр файлов&#10;    ↓&#10;[Добавить в библиотеку]&#10;    ↓&#10;scan_folder()&#10;    ↓&#10;подготовка записей&#10;    ↓&#10;database.py">
+      <option name="closed" value="true" />
+      <created>1787142015297</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1787142015297</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Version 0.0.18&#10;&#10;1.Довели добавление папки до рабочего состояния&#10;При повторном сканировании существующие книги не добавляются повторно.&#10;2.Создали find_book_by_path()&#10;сравниваем пути как Path;&#10;разобрались, почему сравнение строк раньше не работало.&#10;3.Начали отдельную подсистему метаданных&#10;решили не смешивать её ни с file_operations.py, ни с validation.py;&#10;начали metadata/fb2.py.&#10;4.Сделали get_title_info()&#10;функция находит description;&#10;затем title-info;&#10;и возвращает именно этот элемент.&#10;&#10;5.Разобрались с XML namespace&#10;и вынесли его в константу:&#10;&#10;FB2_NS = &quot;{http://www.gribuser.ru/xml/fictionbook/2.0}&quot;">
+      <option name="closed" value="true" />
+      <created>1787231002770</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1787231002770</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Version 0.0.19&#10;&#10;1. собрали FB2-метаданные в единый словарь;&#10;2. сделали функции устойчивыми к отсутствующим элементам;&#10;3. сделали compare_metadata();&#10;4. сделали автоматическое заполнение пустых полей;&#10;5. добавили механизм конфликтов replace / keep / add;&#10;6. проверили всё без GUI;&#10;7. защитили добавление жанров от дубликатов;&#10;8. решили хранить жанры в lowercase.&#10;Архетектура:&#10;FB2 → parser → metadata&#10;              ↓&#10;        compare_metadata&#10;              ↓&#10;        update_book_data&#10;              ↓&#10;        resolve_conflicts&#10;              ↓&#10;           database">
+      <option name="closed" value="true" />
+      <created>1787315268455</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1787315268455</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Version 0.0.20&#10;&#10;1. parse_fb2() подключён;&#10;2. новая FB2-книга добавляется с метаданными;&#10;3. существующая книга определяется;&#10;4. compare_metadata() работает;&#10;5. пустые поля обновляются автоматически;&#10;6. конфликты определяются;&#10;7. path исключён из конфликтов;&#10;8. resolve_conflicts() уже умеет replace / keep / add.">
+      <option name="closed" value="true" />
+      <created>1787407284547</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1787407284547</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Version 0.0.21&#10;&#10;1. Разобрались с конфликтами метаданных fb2();&#10;&#10;2. Сделали диалог конфликта в GUI;&#10;&#10;3. Добавили запоминание решений;&#10;&#10;4. Разделили решения текущей книги и запомненные решения;&#10;&#10;5. Привели диалог в порядок;&#10;определились с дальнейшим GUI&#10;&#10;Сейчас у тебя дерево и список книг находятся рядом. Решили это изменить">
+      <option name="closed" value="true" />
+      <created>1787486139087</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1787486139087</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Version 0.0.21&#10;&#10;1. Подключили книжную полку к реальной базе;&#10;&#10;2.Сделали обновление полки GUI;&#10;&#10;3. Починили ошибку с удалением&#10;&#10;4. Сделали выбор книги на полке&#10;&#10;5. Связали полку с существующей информационной панелью&#10;&#10;Сейчас у тебя дерево и список книг находятся рядом. Решили это изменить">
+      <option name="closed" value="true" />
+      <created>1787572264119</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1787572264119</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Version 0.0.22&#10;&#10;1. Обложки из файлов fb2;&#10;2. Удаление книг с выбором на полке.&#10;следующй этап множественный выбор.">
+      <option name="closed" value="true" />
+      <created>1787657539279</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1787657539279</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Version 0.0.1&#10;&#10;First working version of BookCatalog" />
+    <MESSAGE value="Version 0.0.1.1&#10;&#10;Added book input and display" />
+    <MESSAGE value="Version 0.0.3&#10;&#10;Added main menu and separated book management into module" />
+    <MESSAGE value="Version 0.0.4&#10;&#10;Added delete_books and confi" />
+    <MESSAGE value="Version 0.0.5&#10;&#10;Added find_books" />
+    <MESSAGE value="Version 0.0.5&#10;&#10;переход на формат json&#10;переделаны:&#10;показ списка книг&#10;добавление книги&#10;удаление книги" />
+    <MESSAGE value="Version 0.0.6&#10;&#10;переделаны:&#10;добавление книги&#10;сделано: &#10;открытие, чтение &#10;запись в файл и закрытие файла" />
+    <MESSAGE value="Version 0.0.7&#10;&#10;Добавлена валидация структуры JSON-базы данных." />
+    <MESSAGE value="Version 0.0.7(t)&#10;&#10;тестируем GUI" />
+    <MESSAGE value="Version 0.0.8&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;списка книг&#10;(выбор книг из списка не работает)" />
+    <MESSAGE value="Version 0.0.9&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;списка книг&#10;настроили удаление книги после клика в списке" />
+    <MESSAGE value="Version 0.0.10&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;удаление теперь работает и удаляет запись и из файла json&#10;функцию close_database() переназвал save_database()&#10;порядок в GUI&#10;убрал временные (print)" />
+    <MESSAGE value="Version 0.0.11&#10;&#10;тестируем GUI&#10;добавление в GUI&#10;настроена функция добавления книги в файл josm" />
+    <MESSAGE value="Version 0.0.12&#10;&#10;добавление в GUI окна основной библиотеки&#10;кнопки и строки помещены в левую колонку &#10;добавление в GUI&#10;перенос формирования левой колонки в функцию create_left_panel&#10;настроена работа кнопки &quot;Добавить&quot;" />
+    <MESSAGE value="Version 0.0.13&#10;&#10;продолжение работы с GUI&#10;настроена работа кнопок&#10;&quot;Найти&quot; и &quot;Удалить&quot;" />
+    <MESSAGE value="Version 0.0.14&#10;&#10;продолжение работы с GUI&#10;в правую часть добавлено дерево файлов (функция не доделана)" />
+    <MESSAGE value="Version 0.0.15&#10;&#10;продолжение работы с GUI&#10;в дерево файлов добавлена рекурсия, теперь сканирует все подпапки в выбранной папке. &#10;добавлен задел для информационной панели. Завтра её нужно вынести в отдельную функцию" />
+    <MESSAGE value="Version 0.0.16&#10;&#10;продолжение работы с GUI&#10;перекомпановка с помощью QSplitter на три части.&#10;трёхколоночная структура на QSplitter работает, информационная панель стала самостоятельным QWidget, а её содержимое создаётся внутри create_book_info_panel()&#10;границы между колонками можно двигать;&#10;дерево не скачет из-за длинных путей;&#10;длинный путь переносится внутри информационной панели;&#10;информация собрана компактно сверху;&#10;при выборе другой книги правая колонка сохраняет размер." />
+    <MESSAGE value="Version 0.0.17&#10;&#10;Перешли с QTreeWidget на QTreeView + QFileSystemModel.&#10;Убрали старую рекурсивную scan_folder(), которая вручную создавала QTreeWidgetItem.&#10;Сделали просмотр файлов независимым от базы данных.&#10;Добавили фильтрацию, чтобы дерево показывало только папки и поддерживаемые книжные форматы:&#10;.fb2, .epub, .pdf, .mobi, .txt, .djvu.&#10;Переделали обработку клика по файлу под QTreeView: теперь путь берётся через model.filePath(index).&#10;Исправили find_book_info(), чтобы при отсутствии книги она возвращала None, а программа не падала.&#10;Создали новую scan_folder() уже в file_operations.py. Теперь она не работает с GUI, а просто рекурсивно находит книжные файлы и возвращает список Path.&#10;Разделили два действия:&#10;«Выбрать папку» только показывает её содержимое, а «Добавить в библиотеку» в будущем будет запускать сканирование.&#10;Добавили selected_folder, чтобы помнить выбранную пользователем папку.&#10;Добавили folder_label, где показывается название выбранной папки.&#10;В итоге дерево показывает содержимое выбранной папки, а сама папка отображается отдельно над деревом.&#10;пришли к архитектуре:&#10;Выбор папки&#10;    ↓&#10;просмотр файлов&#10;    ↓&#10;[Добавить в библиотеку]&#10;    ↓&#10;scan_folder()&#10;    ↓&#10;подготовка записей&#10;    ↓&#10;database.py" />
+    <MESSAGE value="Version 0.0.18&#10;&#10;1.Довели добавление папки до рабочего состояния&#10;При повторном сканировании существующие книги не добавляются повторно.&#10;2.Создали find_book_by_path()&#10;сравниваем пути как Path;&#10;разобрались, почему сравнение строк раньше не работало.&#10;3.Начали отдельную подсистему метаданных&#10;решили не смешивать её ни с file_operations.py, ни с validation.py;&#10;начали metadata/fb2.py.&#10;4.Сделали get_title_info()&#10;функция находит description;&#10;затем title-info;&#10;и возвращает именно этот элемент.&#10;&#10;5.Разобрались с XML namespace&#10;и вынесли его в константу:&#10;&#10;FB2_NS = &quot;{http://www.gribuser.ru/xml/fictionbook/2.0}&quot;" />
+    <MESSAGE value="Version 0.0.19&#10;&#10;1. собрали FB2-метаданные в единый словарь;&#10;2. сделали функции устойчивыми к отсутствующим элементам;&#10;3. сделали compare_metadata();&#10;4. сделали автоматическое заполнение пустых полей;&#10;5. добавили механизм конфликтов replace / keep / add;&#10;6. проверили всё без GUI;&#10;7. защитили добавление жанров от дубликатов;&#10;8. решили хранить жанры в lowercase.&#10;Архетектура:&#10;FB2 → parser → metadata&#10;              ↓&#10;        compare_metadata&#10;              ↓&#10;        update_book_data&#10;              ↓&#10;        resolve_conflicts&#10;              ↓&#10;           database" />
+    <MESSAGE value="Version 0.0.20&#10;&#10;1. parse_fb2() подключён;&#10;2. новая FB2-книга добавляется с метаданными;&#10;3. существующая книга определяется;&#10;4. compare_metadata() работает;&#10;5. пустые поля обновляются автоматически;&#10;6. конфликты определяются;&#10;7. path исключён из конфликтов;&#10;8. resolve_conflicts() уже умеет replace / keep / add." />
+    <MESSAGE value="Version 0.0.21&#10;&#10;1. Разобрались с конфликтами метаданных fb2();&#10;&#10;2. Сделали диалог конфликта в GUI;&#10;&#10;3. Добавили запоминание решений;&#10;&#10;4. Разделили решения текущей книги и запомненные решения;&#10;&#10;5. Привели диалог в порядок;&#10;определились с дальнейшим GUI&#10;&#10;Сейчас у тебя дерево и список книг находятся рядом. Решили это изменить" />
+    <MESSAGE value="Version 0.0.21&#10;&#10;1. Подключили книжную полку к реальной базе;&#10;&#10;2.Сделали обновление полки GUI;&#10;&#10;3. Починили ошибку с удалением&#10;&#10;4. Сделали выбор книги на полке&#10;&#10;5. Связали полку с существующей информационной панелью&#10;&#10;Сейчас у тебя дерево и список книг находятся рядом. Решили это изменить" />
+    <MESSAGE value="Version 0.0.22&#10;&#10;1. Обложки из файлов fb2;&#10;2. Удаление книг с выбором на полке.&#10;следующй этап множественный выбор." />
+    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.22&#10;&#10;1. Обложки из файлов fb2;&#10;2. Удаление книг с выбором на полке.&#10;следующй этап множественный выбор." />
   </component>
 </project>

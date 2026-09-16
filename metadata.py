@@ -152,8 +152,8 @@ def extract_fb2_metadata(root):
     metadata = {
         "title": get_title(title_info),
         "author": get_author(title_info),
-        "genre": get_genres(title_info),
-        "year": get_publish_year(publish_info),
+        "genres": get_genres(title_info),
+        "publication_year": get_publish_year(publish_info),
         "isbn": get_isbn(publish_info),
         "language": get_language(title_info),
         "annotation": get_annotation_text(get_annotation(title_info),),
@@ -191,7 +191,7 @@ def debug_cover(root):
     # for binary in binaries:
     #     print(
     #         "id:",
-    #         binary.get("id"),
+    #         binary.get("book_id"),
     #         "| content-type:",
     #         binary.get("content-type")
     #     )
