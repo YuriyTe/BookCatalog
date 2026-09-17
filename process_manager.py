@@ -18,6 +18,7 @@ class ProcessManager:
 
         return book
 
+
     def import_folder(self, folder_path):
 
         books = scan_folder(folder_path)
