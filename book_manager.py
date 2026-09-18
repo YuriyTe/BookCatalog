@@ -207,15 +207,15 @@ def compare_metadata(book, metadata):
 def is_empty_value(value):
     return value is None or value == "" or value == []
 
-def update_book_data(differences, book):
-    conflicts = []
+def process_metadata_differences(differences, book):
+    conflict_fields = []
 
     for field, data in differences.items():
         if data["empty"]:
             book[field] = data["new"]
         else:
-            conflicts.append(field)
-    return book, conflicts
+            conflict_fields.append(field)
+    return book, conflict_fields
 
 def resolve_conflicts(book, differences, decisions):
     for field, data in differences.items():

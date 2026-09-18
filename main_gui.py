@@ -13,7 +13,7 @@ from pathlib import Path
 from file_operations import scan_folder, create_book_from_file
 from database import (open_database, save_database, find_book_by_path, add_book,
                       find_book_by_id)
-from book_manager import update_book_data, resolve_conflicts
+from book_manager import resolve_conflicts
 from metadata import get_fb2_cover
 from process_manager import ProcessManager
 
@@ -265,39 +265,37 @@ def create_book_info_panel():
         "path": path_label
     }
 
-def update_existing_book(existing_book, file_path, decisions):
-    new_book = create_book_from_file(file_path)
+def handle_import_conflicts(results):
+    remembered_decisions = {}
 
-    differences = compare_metadata(existing_book, new_book)
+    for result in results:
+        existing_book, differences, conflict_fields  = result
 
-    if not differences:
-        return
-    existing_book, conflicts = update_book_data(differences, existing_book)
+        current_decisions = handle_conflict(conflict_fields, differences,
+                                            remembered_decisions)
+        process_manager.apply_conflict_decisions(existing_book,
+        differences,current_decisions)
 
-    if conflicts:
-        current_decisions = decisions.copy()
+def handle_conflict(conflict_fields, differences, remembered_decisions):
+    current_decisions = remembered_decisions.copy()
 
-        for field in conflicts:
-            if field in decisions:
-                decision = decisions[field]
-            else:
-                data = differences[field]
+    for field in conflict_fields:
+        if field in current_decisions:
+            decision = current_decisions[field]
+        else:
+            data = differences[field]
 
-                decision, apply_to_all = show_conflict_dialog(
-                field,
-                data["old"],
-                data["new"]
+            decision, apply_to_all = show_conflict_dialog(
+            field,
+            data["old"],
+            data["new"]
             )
-                current_decisions[field] = decision
+            current_decisions[field] = decision
 
-                if apply_to_all:
-                    decisions[field] = decision
+            if apply_to_all:
+                remembered_decisions[field] = decision
 
-        existing_book = resolve_conflicts(
-            existing_book,
-            differences,
-            current_decisions
-        )
+    return current_decisions
 
 def add_folder_to_library():
 
@@ -305,7 +303,11 @@ def add_folder_to_library():
         print("Папка не выбрана")
         return
 
-    process_manager.import_folder(window.selected_folder)
+    results = process_manager.import_folder(window.selected_folder)
+
+    if results:
+        handle_import_conflicts(results)
+
     window.selected_folder = None
 
     refresh_book_shelf(book_data, book_shelf)
