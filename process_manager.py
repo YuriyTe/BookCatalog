@@ -43,9 +43,13 @@ class ProcessManager:
             existing_book, conflict_fields = process_metadata_differences(differences,
                                                                     existing_book)
             if conflict_fields:
-                return existing_book, conflict_fields, differences
+                return existing_book, differences, conflict_fields
+            else:
+                save_database(self.book_data)
         else:
             add_book(self.book_data, new_book)
+            save_database(self.book_data)
+
 
     def apply_conflict_decisions(self, existing_book, differences, decisions):
         book = resolve_conflicts(existing_book, differences, decisions)

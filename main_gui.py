@@ -1,7 +1,8 @@
 # ===== Импорты =====
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QLineEdit, QLabel,
+    QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
+    QLineEdit, QLabel,
     QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
     QFileDialog, QFileSystemModel, QTreeView, QDialog, QRadioButton, QCheckBox,
     QTextEdit, QTabWidget
@@ -182,6 +183,19 @@ def tree_item_clicked(index, book_data):
 
         if book:
             show_book_info(book, book_info_widgets)
+
+def add_selected_book_to_library(book_data):
+    index = tree.currentIndex()
+    path = model.filePath(index)
+    path = Path(path)
+    if not path.is_file():
+        return
+    result = process_manager.import_book(path)
+
+    if result is not None:
+        handle_import_conflicts([result])
+
+    refresh_book_shelf(book_data, book_shelf)
 
 def show_book_info(book, book_info_widgets):
 
@@ -444,8 +458,9 @@ tree_panel.setLayout(tree_layout)
 
 button_choose_folder = QPushButton("Выбрать папку")
 button_choose_folder.clicked.connect(choose_folder)
-button_add_folder = QPushButton("Добавить открытую папку в библиотеку")
+button_add_folder = QPushButton("Добавить папку в библиотеку")
 button_add_folder.clicked.connect(add_folder_to_library)
+button_add_book = QPushButton("Добавить книгу в библиотеку")
 
 folder_label = QLabel("Папка не выбрана")
 
@@ -464,7 +479,12 @@ tree = QTreeView()
 tree.setModel(model)
 
 tree_layout.addWidget(button_choose_folder)
-tree_layout.addWidget(button_add_folder)
+
+button_row = QHBoxLayout()
+button_row.addWidget(button_add_folder)
+button_row.addWidget(button_add_book)
+tree_layout.addLayout(button_row)
+
 tree_layout.addWidget(folder_label)
 
 # начало вставки вкладок для дерева и книжной полки
@@ -507,6 +527,7 @@ load_books_to_shelf(book_data, book_shelf)
 book_shelf.itemClicked.connect(select_book_from_shelf)
 
 tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
+button_add_book.clicked.connect(lambda: add_selected_book_to_library(book_data))
 
 book_info_panel, book_info_widgets = create_book_info_panel()
 
