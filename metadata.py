@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET, base64
 from pathlib import Path
-from book_manager import compare_metadata, update_book_data, resolve_conflicts
+from book_manager import compare_metadata, resolve_conflicts
 from database import open_database
 
 FB2_NS = "{http://www.gribuser.ru/xml/fictionbook/2.0}"

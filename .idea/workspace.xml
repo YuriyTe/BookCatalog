@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="Version 0.0.23&#10;&#10;&#10;Add missing process_manager.py">
+    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления.">
       <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/book_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/book_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/process_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -443,7 +443,31 @@
       <option name="project" value="LOCAL" />
       <updated>1789632727049</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Version 0.0.24&#10;&#10;1. Выделен отдельный import_book() для обработки одной книги;&#10;2. import_folder() переведён на использование import_book();&#10;3. Добавлено сравнение метаданных существующих книг;&#10;4. update_book_data() переименован в process_metadata_differences();&#10;5. Добавлен возврат данных о конфликтах из import_book();&#10;6. import_folder() собирает конфликты нескольких книг;&#10;7. Добавлена GUI-обработка конфликтов через handle_import_conflicts() и handle_conflict();&#10;8. Добавлен ProcessManager.apply_conflict_decisions() для применения решений пользователя;&#10;9. Начато подключение обработки конфликтов к add_folder_to_library().">
+      <option name="closed" value="true" />
+      <created>1789730757136</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1789730757136</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Version 0.0.25&#10;&#10;1. Добавлен импорт одной выбранной книги из дерева файлов;&#10;2. Кнопка &quot;Добавить книгу&quot; подключена к ProcessManager.import_book();&#10;3. Унифицирован импорт одной книги и папки через общий import_book();&#10;4. Добавлено сохранение базы при добавлении новой книги;&#10;5. Добавлено сохранение автоматических обновлений без конфликтов;&#10;6. Подключена обработка конфликтов для одиночного импорта;&#10;7. Проверена работа keep / replace / add;&#10;8. Проверена обработка нескольких конфликтных книг с &quot;Применять ко всем&quot;;&#10;9. Импорт одной книги и папки работают через общий механизм конфликтов.">
+      <option name="closed" value="true" />
+      <created>1789814654487</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1789814654487</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления.">
+      <option name="closed" value="true" />
+      <created>1789896846571</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1789896846571</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -458,9 +482,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Version 0.0.3&#10;&#10;Added main menu and separated book management into module" />
-    <MESSAGE value="Version 0.0.4&#10;&#10;Added delete_books and confi" />
-    <MESSAGE value="Version 0.0.5&#10;&#10;Added find_books" />
     <MESSAGE value="Version 0.0.5&#10;&#10;переход на формат json&#10;переделаны:&#10;показ списка книг&#10;добавление книги&#10;удаление книги" />
     <MESSAGE value="Version 0.0.6&#10;&#10;переделаны:&#10;добавление книги&#10;сделано: &#10;открытие, чтение &#10;запись в файл и закрытие файла" />
     <MESSAGE value="Version 0.0.7&#10;&#10;Добавлена валидация структуры JSON-базы данных." />
@@ -483,6 +504,9 @@
     <MESSAGE value="Version 0.0.22&#10;&#10;1. Обложки из файлов fb2;&#10;2. Удаление книг с выбором на полке.&#10;следующй этап множественный выбор." />
     <MESSAGE value="Version 0.0.23&#10;&#10;1. Добавлен ProcessManager;&#10;2. Удаление книг переведено через ProcessManager;&#10;3. Добавлен import_folder() для импорта новых книг;&#10;4. GUI освобождён от части логики удаления и импорта;&#10;5. Обновлена структура данных книги:&#10;   id -&gt; book_id&#10;   genre -&gt; genres&#10;   year -&gt; publication_year&#10;   first_published -&gt; first_publication_year&#10;6. Обновлена существующая JSON-база под новую структуру." />
     <MESSAGE value="Version 0.0.23&#10;&#10;&#10;Add missing process_manager.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.23&#10;&#10;&#10;Add missing process_manager.py" />
+    <MESSAGE value="Version 0.0.24&#10;&#10;1. Выделен отдельный import_book() для обработки одной книги;&#10;2. import_folder() переведён на использование import_book();&#10;3. Добавлено сравнение метаданных существующих книг;&#10;4. update_book_data() переименован в process_metadata_differences();&#10;5. Добавлен возврат данных о конфликтах из import_book();&#10;6. import_folder() собирает конфликты нескольких книг;&#10;7. Добавлена GUI-обработка конфликтов через handle_import_conflicts() и handle_conflict();&#10;8. Добавлен ProcessManager.apply_conflict_decisions() для применения решений пользователя;&#10;9. Начато подключение обработки конфликтов к add_folder_to_library()." />
+    <MESSAGE value="Version 0.0.25&#10;&#10;1. Добавлен импорт одной выбранной книги из дерева файлов;&#10;2. Кнопка &quot;Добавить книгу&quot; подключена к ProcessManager.import_book();&#10;3. Унифицирован импорт одной книги и папки через общий import_book();&#10;4. Добавлено сохранение базы при добавлении новой книги;&#10;5. Добавлено сохранение автоматических обновлений без конфликтов;&#10;6. Подключена обработка конфликтов для одиночного импорта;&#10;7. Проверена работа keep / replace / add;&#10;8. Проверена обработка нескольких конфликтных книг с &quot;Применять ко всем&quot;;&#10;9. Импорт одной книги и папки работают через общий механизм конфликтов." />
+    <MESSAGE value="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления." />
+    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления." />
   </component>
 </project>
