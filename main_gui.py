@@ -9,12 +9,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QDir, QSize
 from PySide6.QtGui import QIcon, QPixmap
-from book_manager import find_book, delete_books, compare_metadata
+from book_manager import find_book
 from pathlib import Path
-from file_operations import scan_folder, create_book_from_file
-from database import (open_database, save_database, find_book_by_path, add_book,
-                      find_book_by_id)
-from book_manager import resolve_conflicts
+from database import open_database, find_book_by_id
 from metadata import get_fb2_cover
 from process_manager import ProcessManager
 
@@ -59,15 +56,15 @@ def ask_delete(book_data, selected_widget, selected_items,
                 row = selected_widget.row(item)
                 selected_widget.takeItem(row)
 
-                QMessageBox.information(
-                    window,f"Удаление {result['title']}",
-                     "Книга удалена")
-
             else:
                 QMessageBox.information(
                     window,
                     "Удаление",
                     "Удаление не удалось")
+
+        QMessageBox.information(
+            window, f"Удаление",
+            "Удаление свершилось")
 
         refresh_book_shelf(book_data, book_shelf)
 
@@ -137,6 +134,7 @@ def create_left_panel():
     left_layout.addWidget(format_edit)
 
     button_add = QPushButton("Добавить книгу")
+    button_add.setEnabled(False)
     button_delete = QPushButton("Удалить книгу")
     button_find = QPushButton("Найти книгу")
     book_list = QListWidget()
@@ -147,7 +145,6 @@ def create_left_panel():
         QListWidget.SelectionMode.ExtendedSelection
     )
 
-    #button_add.clicked.connect(lambda: add_book(book_data, form_widgets))
     button_delete.clicked.connect(lambda: delete_button_clicked(book_data, form_widgets,
                                         book_list, book_shelf, process_manager))
     button_find.clicked.connect(lambda: find_button_clicked(book_data, form_widgets,

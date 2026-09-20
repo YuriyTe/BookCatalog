@@ -30,7 +30,6 @@ class ProcessManager:
         if book_conflicts:
             return book_conflicts
 
-        save_database(self.book_data)
 
     def import_book(self, file_path):
         new_book = create_book_from_file(file_path)
@@ -44,8 +43,8 @@ class ProcessManager:
                                                                     existing_book)
             if conflict_fields:
                 return existing_book, differences, conflict_fields
-            else:
-                save_database(self.book_data)
+
+            save_database(self.book_data)
         else:
             add_book(self.book_data, new_book)
             save_database(self.book_data)

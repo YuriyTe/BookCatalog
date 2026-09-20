@@ -1,4 +1,4 @@
-from database import save_database
+
 from validation import validate_book
 
 def show_menu():
@@ -93,28 +93,6 @@ def add_books(book_data):
     book_data["books"].append(added_book)
     book_data["book_count"] = len(book_data["books"])
 
-def add_book_gui(book_data, title, author, year, genre, path, book_format, status):
-    if book_data["books"]:
-        new_id = max(book["book_id"] for book in book_data["books"]) + 1
-    else:
-        new_id = 1
-    new_book = {
-    "book_id": new_id,
-    "title": title,
-    "author": author,
-    "publication_year": year,
-    "first_publication_year": None,
-    "genres": genre,
-    "path": path,
-    "format": book_format,
-    "status": "new"
-    }
-
-    if not validate_book(new_book):
-        return None
-    book_data["books"].append(new_book)
-    return new_book
-
 def input_required(message):
     while True:
         value = input(f'{message}: ').strip()
@@ -160,21 +138,6 @@ def delete_books(book_data, id_number):
             break
     else:
         print(f"Книга с id {id_number} не найдена.")
-
-# Check for duplicate books
-def duplicates_check(book_data, title):
-    title_lower = title.lower()
-    for name in book_data:
-        if title_lower == name.lower():
-            print('Такая книга уже есть')
-            action = input('Добавить еще один экземпляр? (y/n): ').strip().lower()
-            if action == 'y':
-                return True
-            elif action == 'n':
-                return False
-            else:
-                return False
-    return True
 
 def find_book(book_data, word):
     query_words = word.lower().split()
