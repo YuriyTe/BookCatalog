@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QTextEdit, QTabWidget
 )
 from PySide6.QtCore import Qt, QDir, QSize
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 from book_manager import find_book
 from pathlib import Path
 from database import open_database, find_book_by_id
@@ -107,17 +107,14 @@ def create_left_panel():
     genre_label = QLabel("Жанр:")
     genre_edit = QLineEdit()
     year_label = QLabel("Год:")
-    year_edit = QSpinBox()
-    year_edit.setRange(1200, 2026)
-    year_edit.setValue(2000)
-    path_label = QLabel("Путь:")
-    path_edit = QLineEdit()
-    format_label = QLabel("Формат:")
-    format_edit = QComboBox()
+    year_edit = QLineEdit()
+    year_validator = QIntValidator(1200, 2026)
+    year_edit.setValidator(year_validator)
+    language_label = QLabel("Язык")
+    language_edit = QComboBox()
+    language_edit.addItems(["Русский", "English", "Français", "Deutsch", "Español"])
+    language_edit.setEditable(True)
 
-    format_edit.addItems([
-        "fb2", "epub", "pdf", "mobi", "txt"
-    ])
 
     left_layout.addWidget(title_label)
     left_layout.addWidget(title_edit)
@@ -128,13 +125,12 @@ def create_left_panel():
 
     left_layout.addWidget(year_label)
     left_layout.addWidget(year_edit)
-    left_layout.addWidget(path_label)
-    left_layout.addWidget(path_edit)
-    left_layout.addWidget(format_label)
-    left_layout.addWidget(format_edit)
+    left_layout.addWidget(language_label)
+    left_layout.addWidget(language_edit)
+
 
     button_add = QPushButton("Добавить книгу")
-    button_add.setEnabled(False)
+    button_add.setEnabled(True)
     button_delete = QPushButton("Удалить книгу")
     button_find = QPushButton("Найти книгу")
     book_list = QListWidget()
@@ -144,6 +140,8 @@ def create_left_panel():
     book_list.setSelectionMode(
         QListWidget.SelectionMode.ExtendedSelection
     )
+
+    button_add.clicked.connect(lambda: add_manual_book_clicked(form_widgets))
 
     button_delete.clicked.connect(lambda: delete_button_clicked(book_data, form_widgets,
                                         book_list, book_shelf, process_manager))
@@ -164,8 +162,7 @@ def create_left_panel():
         "author": author_edit,
         "genres": genre_edit,
         "publication_year": year_edit,
-        "path": path_edit,
-        "format": format_edit
+        "language": language_edit
     }
 
 def tree_item_clicked(index, book_data):
@@ -426,6 +423,42 @@ def select_book_from_shelf(item):
 
     if book:
         show_book_info(book, book_info_widgets)
+
+def manual_new_book(form_widgets):
+    new_book = {}
+    new_book["title"] = form_widgets["title"].text()
+    new_book["author"] = form_widgets["author"].text()
+    year = form_widgets["publication_year"].text()
+    if year == '':
+        new_book["publication_year"] = None
+    else:
+        year = int(year)
+        if int(year) < 1200 or int(year) > 2026:
+            new_book["publication_year"] = None
+        else:
+            new_book["publication_year"] = year
+    new_book["genres"] = []
+    genres = form_widgets["genres"].text().split(",")
+    for genre in genres:
+        genre = genre.strip()
+        if genre:
+            new_book["genres"].append(genre)
+    new_book["language"] = form_widgets["language"].currentText()
+    new_book["isbn"] = None
+    new_book["first_publication_year"] = None
+    new_book["annotation"] = None
+    new_book["cover"] = None
+    new_book["path"] = ""
+    new_book["format"] = ""
+    new_book["status"] = "new"
+
+    return new_book
+
+def add_manual_book_clicked(form_widgets):
+    new_book = manual_new_book(form_widgets)
+    result = process_manager.add_manual_book(new_book)
+    if result is not None:
+        refresh_book_shelf(book_data, book_shelf)
 
 # ===== Работа с базой =====
 book_data = open_database()

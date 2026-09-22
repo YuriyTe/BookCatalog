@@ -54,3 +54,10 @@ class ProcessManager:
         book = resolve_conflicts(existing_book, differences, decisions)
         save_database(self.book_data)
         return book
+
+    def add_manual_book(self, new_book):
+        result = add_book(self.book_data, new_book)
+        if result is not None:
+            save_database(self.book_data)
+
+        return result

@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления.">
-      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="4ee3e73c-8f75-401e-9b32-62ca5b59199a" name="Changes" comment="Version 0.0.27&#10;&#10;1. Удалён устаревший консольный main.py;&#10;2. Удалены больше не используемые консольные функции из book_manager.py;&#10;3. Удалены связанные с ними вспомогательные функции input_required() и input_year();&#10;4. Удалён больше не используемый импорт validate_book;&#10;5. book_manager.py очищен от старой консольной логики;&#10;6. GUI остаётся основной точкой входа в программу.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/book_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/book_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/process_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -467,7 +464,23 @@
       <option name="project" value="LOCAL" />
       <updated>1789896846571</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Version 0.0.27&#10;&#10;1. Удалён устаревший консольный main.py;&#10;2. Удалены больше не используемые консольные функции из book_manager.py;&#10;3. Удалены связанные с ними вспомогательные функции input_required() и input_year();&#10;4. Удалён больше не используемый импорт validate_book;&#10;5. book_manager.py очищен от старой консольной логики;&#10;6. GUI остаётся основной точкой входа в программу.">
+      <option name="closed" value="true" />
+      <created>1789898023895</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1789898023895</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Version 0.0.27&#10;&#10;1. Удалён устаревший консольный main.py;&#10;2. Удалены больше не используемые консольные функции из book_manager.py;&#10;3. Удалены связанные с ними вспомогательные функции input_required() и input_year();&#10;4. Удалён больше не используемый импорт validate_book;&#10;5. book_manager.py очищен от старой консольной логики;&#10;6. GUI остаётся основной точкой входа в программу.">
+      <option name="closed" value="true" />
+      <created>1789898055274</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1789898055274</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -482,7 +495,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Version 0.0.5&#10;&#10;переход на формат json&#10;переделаны:&#10;показ списка книг&#10;добавление книги&#10;удаление книги" />
     <MESSAGE value="Version 0.0.6&#10;&#10;переделаны:&#10;добавление книги&#10;сделано: &#10;открытие, чтение &#10;запись в файл и закрытие файла" />
     <MESSAGE value="Version 0.0.7&#10;&#10;Добавлена валидация структуры JSON-базы данных." />
     <MESSAGE value="Version 0.0.7(t)&#10;&#10;тестируем GUI" />
@@ -507,6 +519,7 @@
     <MESSAGE value="Version 0.0.24&#10;&#10;1. Выделен отдельный import_book() для обработки одной книги;&#10;2. import_folder() переведён на использование import_book();&#10;3. Добавлено сравнение метаданных существующих книг;&#10;4. update_book_data() переименован в process_metadata_differences();&#10;5. Добавлен возврат данных о конфликтах из import_book();&#10;6. import_folder() собирает конфликты нескольких книг;&#10;7. Добавлена GUI-обработка конфликтов через handle_import_conflicts() и handle_conflict();&#10;8. Добавлен ProcessManager.apply_conflict_decisions() для применения решений пользователя;&#10;9. Начато подключение обработки конфликтов к add_folder_to_library()." />
     <MESSAGE value="Version 0.0.25&#10;&#10;1. Добавлен импорт одной выбранной книги из дерева файлов;&#10;2. Кнопка &quot;Добавить книгу&quot; подключена к ProcessManager.import_book();&#10;3. Унифицирован импорт одной книги и папки через общий import_book();&#10;4. Добавлено сохранение базы при добавлении новой книги;&#10;5. Добавлено сохранение автоматических обновлений без конфликтов;&#10;6. Подключена обработка конфликтов для одиночного импорта;&#10;7. Проверена работа keep / replace / add;&#10;8. Проверена обработка нескольких конфликтных книг с &quot;Применять ко всем&quot;;&#10;9. Импорт одной книги и папки работают через общий механизм конфликтов." />
     <MESSAGE value="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления." />
-    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.26&#10;&#10;1. Удалены неиспользуемые импорты из main_gui.py;&#10;2. Удалены неиспользуемые add_book_gui() и duplicates_check();&#10;3. Удалён лишний импорт save_database из book_manager.py;&#10;4. Убрано лишнее сохранение базы из import_folder();&#10;5. Упрощена логика import_book() после проверки конфликтов;&#10;6. Исправлено удаление нескольких книг: одно итоговое сообщение вместо сообщения после каждой книги;&#10;7. Неактивная кнопка ручного добавления книги явно отключена;&#10;8. Удалён старый закомментированный обработчик кнопки добавления." />
+    <MESSAGE value="Version 0.0.27&#10;&#10;1. Удалён устаревший консольный main.py;&#10;2. Удалены больше не используемые консольные функции из book_manager.py;&#10;3. Удалены связанные с ними вспомогательные функции input_required() и input_year();&#10;4. Удалён больше не используемый импорт validate_book;&#10;5. book_manager.py очищен от старой консольной логики;&#10;6. GUI остаётся основной точкой входа в программу." />
+    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.27&#10;&#10;1. Удалён устаревший консольный main.py;&#10;2. Удалены больше не используемые консольные функции из book_manager.py;&#10;3. Удалены связанные с ними вспомогательные функции input_required() и input_year();&#10;4. Удалён больше не используемый импорт validate_book;&#10;5. book_manager.py очищен от старой консольной логики;&#10;6. GUI остаётся основной точкой входа в программу." />
   </component>
 </project>
