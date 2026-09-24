@@ -27,6 +27,7 @@ FIELD_NAMES = {
 class BookFormPanel(QWidget):
     def __init__(self):
         super().__init__()
+        self.current_year = date.today().year
 
         self.left_layout = QVBoxLayout()
         self.setLayout(self.left_layout)
@@ -39,9 +40,9 @@ class BookFormPanel(QWidget):
         self.genre_edit = QLineEdit()
         self.year_label = QLabel("Год:")
         self.year_edit = QLineEdit()
-        current_year = date.today().year
-        self.year_validator = QIntValidator(1200, current_year)
-        self.year_edit.setValidator(QIntValidator(self.year_validator))
+
+        self.year_validator = QIntValidator(1200, self.current_year)
+        self.year_edit.setValidator(self.year_validator)
         self.language_label = QLabel("Язык")
         self.language_edit = QComboBox()
         self.language_edit.addItems(["Русский", "English", "Français",
@@ -68,24 +69,12 @@ class BookFormPanel(QWidget):
                 """)
         self.book_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
 
-        self.form_widgets = {
-            "title": self.title_edit,
-            "author": self.author_edit,
-            "genres": self.genre_edit,
-            "publication_year": self.year_edit,
-            "language": self.language_edit,
-        }
-
-        self.button_add.clicked.connect(lambda: add_manual_book_clicked(
-            self.form_widgets))
+        self.button_add.clicked.connect(lambda: add_manual_book_clicked())
         self.button_delete.clicked.connect(lambda: delete_button_clicked(book_data,
-                                                                         self.form_widgets,
                                                                          self.book_list,
                                                                          book_shelf,
                                                                          process_manager))
-        self.button_find.clicked.connect(lambda: find_button_clicked(book_data,
-                                                                     self.form_widgets,
-                                                                     self.book_list))
+        self.button_find.clicked.connect(lambda: self.find_book_clicked(book_data))
 
         self.left_layout.addWidget(self.book_list)
 
@@ -96,9 +85,71 @@ class BookFormPanel(QWidget):
         self.left_layout.setSpacing(10)
         self.left_layout.setContentsMargins(10, 10, 10, 10)
 
+    def get_book_data_from_form(self):
+        new_book = {}
+        new_book["title"] = self.title_edit.text().strip()
+        if new_book["title"] == "":
+            new_book["title"] = None
+
+        new_book["author"] = self.author_edit.text().strip()
+        if new_book["author"] == "":
+            new_book["author"] = None
+        year = self.year_edit.text()
+        if year == "":
+            new_book["publication_year"] = None
+        else:
+            year = int(year)
+            if year < 1200 or year > self.current_year:
+                new_book["publication_year"] = None
+            else:
+                new_book["publication_year"] = year
+
+        new_book["genres"] = []
+        genres = self.genre_edit.text().split(",")
+        for genre in genres:
+            genre = genre.strip()
+            if genre:
+                new_book["genres"].append(genre)
+        new_book["language"] = self.language_edit.currentText().strip()
+        new_book["isbn"] = None
+        new_book["first_publication_year"] = None
+        new_book["annotation"] = None
+        new_book["cover"] = None
+        new_book["path"] = ""
+        new_book["format"] = ""
+        new_book["status"] = "new"
+
+        return new_book
+
+    def clear_form(self):
+        self.title_edit.clear()
+        self.author_edit.clear()
+        self.genre_edit.clear()
+        self.year_edit.clear()
+        self.language_edit.clearEditText()
+
+    def find_book_clicked(self, book_data):
+        word = self.title_edit.text().strip()
+        found_books = find_book(book_data, word)
+
+        self.book_list.clear()
+        for book in found_books:
+            item = QListWidgetItem(
+            f'ID: {book["book_id"]} | {book['title']}'
+            )
+            item.setData(
+                Qt.ItemDataRole.UserRole,
+                book["book_id"]
+            )
+            self.book_list.addItem(item)
+
+        self.clear_form()
+
+
+
 
 # ===== Работа с GUI (функции) =====
-def delete_button_clicked(book_data, form_widgets, book_list, book_shelf, process_manager):
+def delete_button_clicked(book_data, book_list, book_shelf, process_manager):
     selected_items = book_list.selectedItems()
     selected_widget = book_list
 
@@ -110,10 +161,10 @@ def delete_button_clicked(book_data, form_widgets, book_list, book_shelf, proces
         return
 
     ask_delete(book_data, selected_widget, selected_items,
-               form_widgets, book_shelf, process_manager)
+               book_shelf, process_manager)
 
 def ask_delete(book_data, selected_widget, selected_items,
-               form_widgets, book_shelf, process_manager):
+               book_shelf, process_manager):
     answer = QMessageBox.question(
         window,
         "Удаление книг",
@@ -148,26 +199,6 @@ def ask_delete(book_data, selected_widget, selected_items,
             "Удаление",
             "Удаление отменено")
 
-    form_widgets["title"].clear()
-
-def find_button_clicked(book_data, form_widgets, book_list):
-    word = form_widgets["title"].text()
-    found_books = find_book(book_data, word)
-
-    book_list.clear()
-    for book in found_books:
-        item = QListWidgetItem(
-            f"ID: {book["book_id"]} | {book['title']}"
-        )
-        item.setData(
-            Qt.ItemDataRole.UserRole,
-            book["book_id"]
-        )
-        book_list.addItem(item)
-
-    form_widgets["title"].clear()
-    form_widgets["author"].clear()
-    form_widgets["genres"].clear()
 
 def tree_item_clicked(index, book_data):
     path = model.filePath(index)
@@ -428,43 +459,8 @@ def select_book_from_shelf(item):
     if book:
         show_book_info(book, book_info_widgets)
 
-def manual_new_book(form_widgets):
-    new_book = {}
-    new_book["title"] = form_widgets["title"].text().strip()
-    if new_book["title"] == '':
-        new_book["title"] = None
-
-    new_book["author"] = form_widgets["author"].text().strip()
-    if new_book["author"] == '':
-        new_book["author"] = None
-    year = form_widgets["publication_year"].text()
-    if year == '':
-        new_book["publication_year"] = None
-    else:
-        year = int(year)
-        if int(year) < 1200 or int(year) > 2026:
-            new_book["publication_year"] = None
-        else:
-            new_book["publication_year"] = year
-    new_book["genres"] = []
-    genres = form_widgets["genres"].text().split(",")
-    for genre in genres:
-        genre = genre.strip()
-        if genre:
-            new_book["genres"].append(genre)
-    new_book["language"] = form_widgets["language"].currentText()
-    new_book["isbn"] = None
-    new_book["first_publication_year"] = None
-    new_book["annotation"] = None
-    new_book["cover"] = None
-    new_book["path"] = ""
-    new_book["format"] = ""
-    new_book["status"] = "new"
-
-    return new_book
-
-def add_manual_book_clicked(form_widgets):
-    new_book = manual_new_book(form_widgets)
+def add_manual_book_clicked():
+    new_book = left_panel.get_book_data_from_form()
     if new_book["title"] is None:
         QMessageBox.information(window,
             "название",
@@ -479,14 +475,10 @@ def add_manual_book_clicked(form_widgets):
     result = process_manager.add_manual_book(new_book)
     if result is not None:
         refresh_book_shelf(book_data, book_shelf)
-        form_widgets["title"].clear()
-        form_widgets["author"].clear()
-        form_widgets["genres"].clear()
-        form_widgets["publication_year"].clear()
-        form_widgets["language"].clearEditText()
+        left_panel.clear_form()
 
         QMessageBox.information(window,
-                                "новая книга", "Новая книга внесена в каталог")
+        "новая книга", "Новая книга внесена в каталог")
 
 
 # ===== Работа с базой =====
@@ -510,7 +502,6 @@ main_widget.setLayout(main_layout)
 window.setCentralWidget(main_widget)
 
 left_panel = BookFormPanel()
-form_widgets = left_panel.form_widgets
 
 tree_panel = QWidget()
 tree_layout = QVBoxLayout()
