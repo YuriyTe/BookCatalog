@@ -18,7 +18,6 @@ class ProcessManager:
 
         return book
 
-
     def import_folder(self, folder_path):
         book_conflicts = []
         books = scan_folder(folder_path)
@@ -29,7 +28,6 @@ class ProcessManager:
                 book_conflicts.append(result_import)
         if book_conflicts:
             return book_conflicts
-
 
     def import_book(self, file_path):
         new_book = create_book_from_file(file_path)
@@ -49,7 +47,6 @@ class ProcessManager:
             add_book(self.book_data, new_book)
             save_database(self.book_data)
 
-
     def apply_conflict_decisions(self, existing_book, differences, decisions):
         book = resolve_conflicts(existing_book, differences, decisions)
         save_database(self.book_data)
@@ -61,3 +58,16 @@ class ProcessManager:
             save_database(self.book_data)
 
         return result
+
+    def manual_update_book(self, book_id, new_data):
+        book = find_book_by_id(self.book_data, book_id)
+        if book is None:
+            return
+        book["title"] = new_data["title"]
+        book["author"] = new_data["author"]
+        book["genres"] = new_data["genres"]
+        book["publication_year"] = new_data["publication_year"]
+        book["language"] = new_data["language"]
+
+        save_database(self.book_data)
+        return book

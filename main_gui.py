@@ -3,7 +3,7 @@ import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout,
     QLineEdit, QLabel,
-    QMessageBox, QListWidget, QListWidgetItem, QSpinBox, QComboBox, QSplitter,
+    QMessageBox, QListWidget, QListWidgetItem, QComboBox, QSplitter,
     QFileDialog, QFileSystemModel, QTreeView, QDialog, QRadioButton, QCheckBox,
     QTextEdit, QTabWidget
 )
@@ -28,6 +28,7 @@ class BookFormPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.current_year = date.today().year
+        self.editing_book_id = None
 
         self.left_layout = QVBoxLayout()
         self.setLayout(self.left_layout)
@@ -60,25 +61,21 @@ class BookFormPanel(QWidget):
         self.left_layout.addWidget(self.language_label)
         self.left_layout.addWidget(self.language_edit)
 
+        self.button_cancel_edit = QPushButton("Отменить изменения")
+        self.button_cancel_edit.setVisible(False)
         self.button_add = QPushButton("Добавить книгу")
         self.button_delete = QPushButton("Удалить книгу")
         self.button_find = QPushButton("Найти книгу")
-        self.book_list = QListWidget()
-        self.book_list.setStyleSheet("""
-                QListWidget {border: 1px solid #888;} 
-                """)
-        self.book_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
 
         self.button_add.clicked.connect(lambda: add_manual_book_clicked())
         self.button_delete.clicked.connect(lambda: delete_button_clicked(book_data,
-                                                                         self.book_list,
                                                                          book_shelf,
                                                                          process_manager))
-        self.button_find.clicked.connect(lambda: self.find_book_clicked(book_data))
-
-        self.left_layout.addWidget(self.book_list)
+        self.button_find.clicked.connect(lambda: self.find_book_clicked(book_data, book_shelf))
+        self.button_cancel_edit.clicked.connect(self.finish_edit_mode)
 
         self.left_layout.addStretch()
+        self.left_layout.addWidget(self.button_cancel_edit)
         self.left_layout.addWidget(self.button_add)
         self.left_layout.addWidget(self.button_delete)
         self.left_layout.addWidget(self.button_find)
@@ -128,43 +125,53 @@ class BookFormPanel(QWidget):
         self.year_edit.clear()
         self.language_edit.clearEditText()
 
-    def find_book_clicked(self, book_data):
+    def find_book_clicked(self, book_data, book_shelf):
         word = self.title_edit.text().strip()
         found_books = find_book(book_data, word)
 
-        self.book_list.clear()
-        for book in found_books:
-            item = QListWidgetItem(
-            f'ID: {book["book_id"]} | {book['title']}'
-            )
-            item.setData(
-                Qt.ItemDataRole.UserRole,
-                book["book_id"]
-            )
-            self.book_list.addItem(item)
+        self.finish_edit_mode()
+        book_shelf.clear()
+        load_books_to_shelf(found_books, book_shelf)
 
+    def load_book_to_form(self, book):
+        self.editing_book_id = book["book_id"]
+        self.button_add.setText("Сохранить изменения")
+        self.button_cancel_edit.setVisible(True)
+        self.title_edit.setText(book["title"])
+        author = book["author"]
+        if author is None:
+            self.author_edit.setText("")
+        else:
+            self.author_edit.setText(book["author"])
+        self.genre_edit.setText(", ".join(book["genres"]))
+        year = book["publication_year"]
+        if year is None:
+            self.year_edit.clear()
+        else:
+            self.year_edit.setText(str(year))
+        language = book["language"]
+        if language is None:
+            self.language_edit.setCurrentText("")
+        else:
+            self.language_edit.setCurrentText(language)
+
+    def finish_edit_mode(self):
         self.clear_form()
-
-
-
+        self.editing_book_id = None
+        self.button_add.setText("Добавить книгу")
+        self.button_cancel_edit.setVisible(False)
 
 # ===== Работа с GUI (функции) =====
-def delete_button_clicked(book_data, book_list, book_shelf, process_manager):
-    selected_items = book_list.selectedItems()
-    selected_widget = book_list
+def delete_button_clicked(book_data, book_shelf, process_manager):
+    selected_items = book_shelf.selectedItems()
 
-    if not selected_items:
-        selected_items = book_shelf.selectedItems()
-        selected_widget = book_shelf
 
     if not selected_items:
         return
 
-    ask_delete(book_data, selected_widget, selected_items,
-               book_shelf, process_manager)
+    ask_delete(book_data, selected_items, book_shelf, process_manager)
 
-def ask_delete(book_data, selected_widget, selected_items,
-               book_shelf, process_manager):
+def ask_delete(book_data, selected_items, book_shelf, process_manager):
     answer = QMessageBox.question(
         window,
         "Удаление книг",
@@ -178,8 +185,8 @@ def ask_delete(book_data, selected_widget, selected_items,
             result = process_manager.remove_book(book_id)
 
             if result is not None:
-                row = selected_widget.row(item)
-                selected_widget.takeItem(row)
+                row = book_shelf.row(item)
+                book_shelf.takeItem(row)
 
             else:
                 QMessageBox.information(
@@ -199,19 +206,16 @@ def ask_delete(book_data, selected_widget, selected_items,
             "Удаление",
             "Удаление отменено")
 
-
 def tree_item_clicked(index, book_data):
     path = model.filePath(index)
     path = Path(path)
 
-    if path.is_dir():
-        print("Выбрана папка: ", path)
-
-    elif path.is_file():
+    if path.is_file():
         book = find_book_info(path, book_data)
 
         if book:
             show_book_info(book, book_info_widgets)
+            window.selected_book_id = book["book_id"]
 
 def add_selected_book_to_library(book_data):
     index = tree.currentIndex()
@@ -244,14 +248,12 @@ def show_book_info(book, book_info_widgets):
     book_info_widgets["path"].setText(
         f"Путь: {book["path"]}"
     )
+    book_info_widgets["correct_button"].setVisible(True)
 
 def find_book_info(path, book_data):
 
     for book in book_data["books"]:
         if Path(book["path"]) == path:
-            print("Нашли книгу:")
-            print("Нашли название: ", book["title"])
-            print("Нашли автора", book["author"])
             return book
     return None
 
@@ -286,6 +288,9 @@ def create_book_info_panel():
     format_label = QLabel()
     path_label = QLabel()
     path_label.setWordWrap(True)
+    correct_button = QPushButton("Внести исправления")
+    correct_button.setVisible(False)
+
 
     layout.setSpacing(2)
     layout.addWidget(title_label)
@@ -295,6 +300,7 @@ def create_book_info_panel():
     layout.addWidget(year_label)
     layout.addWidget(format_label)
     layout.addWidget(path_label)
+    layout.addWidget(correct_button)
 
     layout.addStretch()
 
@@ -305,7 +311,8 @@ def create_book_info_panel():
         "annotation": annotation_label,
         "publication_year": year_label,
         "format": format_label,
-        "path": path_label
+        "path": path_label,
+        "correct_button": correct_button
     }
 
 def handle_import_conflicts(results):
@@ -343,7 +350,6 @@ def handle_conflict(conflict_fields, differences, remembered_decisions):
 def add_folder_to_library():
 
     if window.selected_folder is None:
-        print("Папка не выбрана")
         return
 
     results = process_manager.import_folder(window.selected_folder)
@@ -415,8 +421,8 @@ def show_conflict_dialog(field, old_value, new_value, parent=None):
 
     return None, False
 
-def load_books_to_shelf(book_data, book_shelf):
-    for book in book_data["books"]:
+def load_books_to_shelf(books, book_shelf):
+    for book in books:
         cover = None
 
         if book["format"] == "fb2":
@@ -449,7 +455,7 @@ def load_books_to_shelf(book_data, book_shelf):
 
 def refresh_book_shelf(book_data, book_shelf):
     book_shelf.clear()
-    load_books_to_shelf(book_data, book_shelf)
+    load_books_to_shelf(book_data["books"], book_shelf)
 
 def select_book_from_shelf(item):
     book_id = item.data(Qt.ItemDataRole.UserRole)
@@ -458,6 +464,7 @@ def select_book_from_shelf(item):
 
     if book:
         show_book_info(book, book_info_widgets)
+        window.selected_book_id = book["book_id"]
 
 def add_manual_book_clicked():
     new_book = left_panel.get_book_data_from_form()
@@ -472,13 +479,36 @@ def add_manual_book_clicked():
             "Нет имени автора")
         return
 
-    result = process_manager.add_manual_book(new_book)
-    if result is not None:
-        refresh_book_shelf(book_data, book_shelf)
-        left_panel.clear_form()
+    if left_panel.editing_book_id is None:
+        result = process_manager.add_manual_book(new_book)
+        if result is not None:
+            refresh_book_shelf(book_data, book_shelf)
+            left_panel.clear_form()
 
-        QMessageBox.information(window,
-        "новая книга", "Новая книга внесена в каталог")
+            QMessageBox.information(window,
+                        "новая книга", "Новая книга внесена в каталог")
+    else:
+        result = process_manager.manual_update_book(left_panel.editing_book_id, new_book)
+
+        if result is not None:
+            refresh_book_shelf(book_data, book_shelf)
+            show_book_info(result, book_info_widgets)
+            left_panel.finish_edit_mode()
+
+            QMessageBox.information(
+                window,
+                "Изменения",
+                "Данные книги изменены"
+            )
+
+def correct_book_clicked():
+    book_id = window.selected_book_id
+    book = find_book_by_id(book_data, book_id)
+
+    if book is None:
+        return
+
+    left_panel.load_book_to_form(book)
 
 
 # ===== Работа с базой =====
@@ -500,6 +530,8 @@ main_layout = QVBoxLayout()
 main_layout.addWidget(splitter)
 main_widget.setLayout(main_layout)
 window.setCentralWidget(main_widget)
+
+window.selected_book_id = None
 
 left_panel = BookFormPanel()
 
@@ -557,7 +589,6 @@ book_shelf.setSelectionMode(
     QListWidget.SelectionMode.ExtendedSelection
 )
 
-
 tabs.addTab(tree_tab, "Дерево")
 tabs.addTab(book_shelf_tab, "Книги")
 
@@ -573,7 +604,7 @@ book_shelf.setWrapping(True)
 book_shelf.setMovement(QListWidget.Movement.Static)
 book_shelf.setResizeMode(QListWidget.ResizeMode.Adjust)
 
-load_books_to_shelf(book_data, book_shelf)
+load_books_to_shelf(book_data["books"], book_shelf)
 
 book_shelf.itemClicked.connect(select_book_from_shelf)
 
@@ -581,6 +612,7 @@ tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
 button_add_book.clicked.connect(lambda: add_selected_book_to_library(book_data))
 
 book_info_panel, book_info_widgets = create_book_info_panel()
+book_info_widgets["correct_button"].clicked.connect(correct_book_clicked)
 
 splitter.addWidget(left_panel)
 splitter.addWidget(tree_panel)
