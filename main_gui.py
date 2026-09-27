@@ -161,6 +161,68 @@ class BookFormPanel(QWidget):
         self.button_add.setText("Добавить книгу")
         self.button_cancel_edit.setVisible(False)
 
+    def update_delete_button_text(self, selected_count):
+        if selected_count > 1:
+            self.button_delete.setText("Удалить книги")
+        else:
+            self.button_delete.setText("Удалить книгу")
+
+
+class BookInfoPanel(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        self.selected_book_id = None
+
+        self.title_label = QLabel()
+        self.title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.title_label.setWordWrap(True)
+        self.author_label = QLabel()
+        self.genre_label = QLabel()
+        self.annotation_label = QLabel()
+        self.annotation_label.setWordWrap(True)
+        self.year_label = QLabel()
+        self.format_label = QLabel()
+        self.path_label = QLabel()
+        self.path_label.setWordWrap(True)
+        self.correct_button = QPushButton("Внести исправления")
+        self.correct_button.setVisible(False)
+
+        layout.setSpacing(2)
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.author_label)
+        layout.addWidget(self.genre_label)
+        layout.addWidget(self.annotation_label)
+        layout.addWidget(self.year_label)
+        layout.addWidget(self.format_label)
+        layout.addWidget(self.path_label)
+        layout.addWidget(self.correct_button)
+
+        layout.addStretch()
+
+    def show_book_info(self, book):
+        self.title_label.setText(f"Название: {book["title"]}")
+        self.author_label.setText(f"Автор: {book["author"]}")
+        self.genre_label.setText(f"Жанр: {book["genres"]}")
+        self.annotation_label.setText(f"Аннотация: {book['annotation']}")
+        self.year_label.setText(f"Год: {book["publication_year"]}")
+        self.format_label.setText(f"Формат: {book['format']}")
+        self.path_label.setText(f"Путь: {book["path"]}")
+        self.correct_button.setVisible(True)
+
+    def clear_book_info(self):
+        self.title_label.clear()
+        self.author_label.clear()
+        self.genre_label.clear()
+        self.annotation_label.clear()
+        self.year_label.clear()
+        self.format_label.clear()
+        self.path_label.clear()
+        self.correct_button.setVisible(False)
+        self.selected_book_id = None
+
+
 # ===== Работа с GUI (функции) =====
 def delete_button_clicked(book_data, book_shelf, process_manager):
     selected_items = book_shelf.selectedItems()
@@ -179,8 +241,13 @@ def ask_delete(book_data, selected_items, book_shelf, process_manager):
     )
 
     if answer == QMessageBox.StandardButton.Yes:
+        selected_book_deleted = False
+
         for item in selected_items:
             book_id = item.data(Qt.ItemDataRole.UserRole)
+
+            if book_id == book_info_panel.selected_book_id:
+                selected_book_deleted = True
 
             result = process_manager.remove_book(book_id)
 
@@ -198,7 +265,8 @@ def ask_delete(book_data, selected_items, book_shelf, process_manager):
             window, f"Удаление",
             "Удаление свершилось")
 
-        refresh_book_shelf(book_data, book_shelf)
+        if selected_book_deleted:
+            book_info_panel.clear_book_info()
 
     else:
         QMessageBox.information(
@@ -214,8 +282,8 @@ def tree_item_clicked(index, book_data):
         book = find_book_info(path, book_data)
 
         if book:
-            show_book_info(book, book_info_widgets)
-            window.selected_book_id = book["book_id"]
+            book_info_panel.show_book_info(book)
+            book_info_panel.selected_book_id = book["book_id"]
 
 def add_selected_book_to_library(book_data):
     index = tree.currentIndex()
@@ -229,26 +297,6 @@ def add_selected_book_to_library(book_data):
         handle_import_conflicts([result])
 
     refresh_book_shelf(book_data, book_shelf)
-
-def show_book_info(book, book_info_widgets):
-
-    book_info_widgets["title"].setText(f"Название: {book["title"]}"
-    )
-    book_info_widgets["author"].setText(f"Автор: {book["author"]}"
-    )
-    book_info_widgets["genres"].setText(f"Жанр: {book["genres"]}"
-    )
-    book_info_widgets["annotation"].setText(f"Аннотация: {book['annotation']}")
-    book_info_widgets["publication_year"].setText(
-        f"Год: {book["publication_year"]}"
-    )
-    book_info_widgets["format"].setText(
-        f"Формат: {book['format']}"
-    )
-    book_info_widgets["path"].setText(
-        f"Путь: {book["path"]}"
-    )
-    book_info_widgets["correct_button"].setVisible(True)
 
 def find_book_info(path, book_data):
 
@@ -271,49 +319,6 @@ def choose_folder():
 
         root_path = model.setRootPath(folder)
         tree.setRootIndex(root_path)
-
-def create_book_info_panel():
-    panel = QWidget()
-    layout = QVBoxLayout()
-    panel.setLayout(layout)
-
-    title_label = QLabel()
-    title_label.setStyleSheet("font-size: 16px; font-weight: bold;")
-    title_label.setWordWrap(True)
-    author_label = QLabel()
-    genre_label = QLabel()
-    annotation_label = QLabel()
-    annotation_label.setWordWrap(True)
-    year_label = QLabel()
-    format_label = QLabel()
-    path_label = QLabel()
-    path_label.setWordWrap(True)
-    correct_button = QPushButton("Внести исправления")
-    correct_button.setVisible(False)
-
-
-    layout.setSpacing(2)
-    layout.addWidget(title_label)
-    layout.addWidget(author_label)
-    layout.addWidget(genre_label)
-    layout.addWidget(annotation_label)
-    layout.addWidget(year_label)
-    layout.addWidget(format_label)
-    layout.addWidget(path_label)
-    layout.addWidget(correct_button)
-
-    layout.addStretch()
-
-    return panel, {
-        "title": title_label,
-        "author": author_label,
-        "genres": genre_label,
-        "annotation": annotation_label,
-        "publication_year": year_label,
-        "format": format_label,
-        "path": path_label,
-        "correct_button": correct_button
-    }
 
 def handle_import_conflicts(results):
     remembered_decisions = {}
@@ -463,8 +468,8 @@ def select_book_from_shelf(item):
     book = find_book_by_id(book_data, book_id)
 
     if book:
-        show_book_info(book, book_info_widgets)
-        window.selected_book_id = book["book_id"]
+        book_info_panel.show_book_info(book)
+        book_info_panel.selected_book_id = book["book_id"]
 
 def add_manual_book_clicked():
     new_book = left_panel.get_book_data_from_form()
@@ -492,7 +497,7 @@ def add_manual_book_clicked():
 
         if result is not None:
             refresh_book_shelf(book_data, book_shelf)
-            show_book_info(result, book_info_widgets)
+            book_info_panel.show_book_info(result)
             left_panel.finish_edit_mode()
 
             QMessageBox.information(
@@ -502,7 +507,7 @@ def add_manual_book_clicked():
             )
 
 def correct_book_clicked():
-    book_id = window.selected_book_id
+    book_id = book_info_panel.selected_book_id
     book = find_book_by_id(book_data, book_id)
 
     if book is None:
@@ -530,8 +535,6 @@ main_layout = QVBoxLayout()
 main_layout.addWidget(splitter)
 main_widget.setLayout(main_layout)
 window.setCentralWidget(main_widget)
-
-window.selected_book_id = None
 
 left_panel = BookFormPanel()
 
@@ -607,12 +610,14 @@ book_shelf.setResizeMode(QListWidget.ResizeMode.Adjust)
 load_books_to_shelf(book_data["books"], book_shelf)
 
 book_shelf.itemClicked.connect(select_book_from_shelf)
+book_shelf.itemSelectionChanged.connect(lambda: left_panel.update_delete_button_text(
+                                    len(book_shelf.selectedItems())))
 
 tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
 button_add_book.clicked.connect(lambda: add_selected_book_to_library(book_data))
 
-book_info_panel, book_info_widgets = create_book_info_panel()
-book_info_widgets["correct_button"].clicked.connect(correct_book_clicked)
+book_info_panel = BookInfoPanel()
+book_info_panel.correct_button.clicked.connect(correct_book_clicked)
 
 splitter.addWidget(left_panel)
 splitter.addWidget(tree_panel)

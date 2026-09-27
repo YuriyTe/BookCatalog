@@ -1,7 +1,3 @@
-from pandas.core.internals.blocks import new_block
-
-from database import open_database, save_database
-from pathlib import Path
 from metadata import parse_fb2
 
 BOOK_FORMATS = {

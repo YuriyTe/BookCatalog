@@ -14,7 +14,6 @@ class ProcessManager:
 
         delete_books(self.book_data, book_id)
         save_database(self.book_data)
-        print(f'Book {book["title"]} removed')
 
         return book
 
