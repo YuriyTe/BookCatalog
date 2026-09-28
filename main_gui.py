@@ -29,6 +29,7 @@ class BookFormPanel(QWidget):
         super().__init__()
         self.current_year = date.today().year
         self.editing_book_id = None
+        self.original_data = None
 
         self.left_layout = QVBoxLayout()
         self.setLayout(self.left_layout)
@@ -135,6 +136,13 @@ class BookFormPanel(QWidget):
 
     def load_book_to_form(self, book):
         self.editing_book_id = book["book_id"]
+        self.original_data = {
+            "title": book["title"],
+            "author": book["author"],
+            "genres": book["genres"].copy(),
+            "language": book["language"],
+            "publication_year": book["publication_year"]
+        }
         self.button_add.setText("Сохранить изменения")
         self.button_cancel_edit.setVisible(True)
         self.title_edit.setText(book["title"])
@@ -160,6 +168,7 @@ class BookFormPanel(QWidget):
         self.editing_book_id = None
         self.button_add.setText("Добавить книгу")
         self.button_cancel_edit.setVisible(False)
+        self.original_data = None
 
     def update_delete_button_text(self, selected_count):
         if selected_count > 1:
@@ -167,6 +176,23 @@ class BookFormPanel(QWidget):
         else:
             self.button_delete.setText("Удалить книгу")
 
+    def is_dirty(self):
+        if self.original_data is None:
+            return False
+        book = self.get_book_data_from_form()
+        data_from_form = {
+            "title": book["title"],
+            "author": book["author"],
+            "genres": book["genres"].copy(),
+            "language": book["language"],
+            "publication_year": book["publication_year"]
+        }
+
+        for field in data_from_form:
+            if data_from_form[field] != self.original_data[field]:
+                return True
+
+        return False
 
 class BookInfoPanel(QWidget):
     def __init__(self):
@@ -221,7 +247,6 @@ class BookInfoPanel(QWidget):
         self.path_label.clear()
         self.correct_button.setVisible(False)
         self.selected_book_id = None
-
 
 # ===== Работа с GUI (функции) =====
 def delete_button_clicked(book_data, book_shelf, process_manager):
@@ -513,6 +538,23 @@ def correct_book_clicked():
     if book is None:
         return
 
+    if (
+        left_panel.editing_book_id is not None
+        and left_panel.editing_book_id != book_id
+    ):
+        if left_panel.is_dirty():
+            answer = QMessageBox.question(
+                window,
+                "Изменение книги",
+                "Есть несохранённые изменения. "
+                "Отменить их и перейти к другой книге?"
+            )
+
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+
+        left_panel.finish_edit_mode()
+
     left_panel.load_book_to_form(book)
 
 
@@ -553,8 +595,7 @@ folder_label = QLabel("Папка не выбрана")
 model = QFileSystemModel()
 
 model.setFilter(QDir.Filter.AllDirs |
-    QDir.Filter.Files | QDir.Filter.NoDotAndDotDot
-)
+    QDir.Filter.Files | QDir.Filter.NoDotAndDotDot)
 
 model.setNameFilters([
     "*.fb2", "*.epub", "*.pdf", "*.mobi", "*.txt", "*.djvu"])
