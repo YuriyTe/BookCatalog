@@ -1,6 +1,4 @@
 import xml.etree.ElementTree as ET, base64
-from pathlib import Path
-from database import open_database
 
 FB2_NS = "{http://www.gribuser.ru/xml/fictionbook/2.0}"
 
@@ -169,9 +167,6 @@ def parse_fb2(file_path):
 
     return extract_fb2_metadata(root)
 
-def debug_cover(root):
-    pass
-
 def get_cover(root):
     coverpage = root.find(f".//{FB2_NS}coverpage")
 
@@ -211,19 +206,6 @@ def get_fb2_cover(file_path):
     return get_cover(root)
 
 
-if __name__ == "__main__":
-    book_data = open_database()
-    book = book_data["books"][0]
-
-
-    #file_path = Path("D:/_BOOKS_TEST/Sci-Fi/Херберт Фрэнк/Дюна  Хроники Дюны/Дюна.fb2")
-
-    #root = read_fb2(file_path)
-    #metadata = extract_fb2_metadata(root)
-
-    #cover = get_cover(root)
-
-    #print("COVER BYTES:", len(cover) if cover else None)
 
 
 

@@ -1,5 +1,4 @@
 import json
-import sys
 from datetime import date
 from validation import validate_database, validate_book
 from pathlib import Path

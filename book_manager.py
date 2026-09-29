@@ -3,7 +3,7 @@
 def delete_books(book_data, id_number):
     for i, book in enumerate(book_data["books"]):
         if book["book_id"] == id_number:
-            deleted_book = book_data["books"].pop(i)
+            book_data["books"].pop(i)
             book_data["book_count"] = len(book_data["books"])
             break
     else:

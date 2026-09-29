@@ -10,11 +10,10 @@ BOOK_FORMATS = {
 }
 
 def scan_folder(folder):
-    book_formats = {".fb2", ".epub", ".pdf", ".mobi", ".txt", ".djvu"}
     books = []
 
     for item in folder.rglob("*"):
-        if item.is_file() and item.suffix.lower() in book_formats:
+        if item.is_file() and item.suffix.lower() in BOOK_FORMATS:
             books.append(item)
 
     return books

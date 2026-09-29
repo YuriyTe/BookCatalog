@@ -1,4 +1,3 @@
-import sys
 
 
 def validate_database(book_data):

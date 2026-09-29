@@ -7,11 +7,13 @@ from PySide6.QtWidgets import (
     QFileDialog, QFileSystemModel, QTreeView, QDialog, QRadioButton, QCheckBox,
     QTextEdit, QTabWidget
 )
-from PySide6.QtCore import Qt, QDir, QSize
+from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
+from dill import settings
+
 from book_manager import find_book
 from pathlib import Path
-from database import open_database, find_book_by_id
+from database import open_database, find_book_by_id, find_book_by_path
 from metadata import get_fb2_cover
 from process_manager import ProcessManager
 from datetime import date
@@ -236,6 +238,7 @@ class BookInfoPanel(QWidget):
         self.format_label.setText(f"Формат: {book['format']}")
         self.path_label.setText(f"Путь: {book["path"]}")
         self.correct_button.setVisible(True)
+        self.selected_book_id = book["book_id"]
 
     def clear_book_info(self):
         self.title_label.clear()
@@ -304,11 +307,10 @@ def tree_item_clicked(index, book_data):
     path = Path(path)
 
     if path.is_file():
-        book = find_book_info(path, book_data)
+        book = find_book_by_path(path, book_data)
 
         if book:
             book_info_panel.show_book_info(book)
-            book_info_panel.selected_book_id = book["book_id"]
 
 def add_selected_book_to_library(book_data):
     index = tree.currentIndex()
@@ -323,20 +325,15 @@ def add_selected_book_to_library(book_data):
 
     refresh_book_shelf(book_data, book_shelf)
 
-def find_book_info(path, book_data):
-
-    for book in book_data["books"]:
-        if Path(book["path"]) == path:
-            return book
-    return None
-
 def choose_folder():
     folder = QFileDialog.getExistingDirectory(
         window,
-"Выберите папку с книгами")
+"Выберите папку с книгами", window.last_folder)
 
     if folder:
         window.selected_folder = Path(folder)
+        window.last_folder = folder
+        settings.setValue("last_folder", folder)
 
         folder_label.setText(
             f"📁 {window.selected_folder.name}"
@@ -504,7 +501,6 @@ def select_book_from_shelf(item):
 
     if book:
         book_info_panel.show_book_info(book)
-        book_info_panel.selected_book_id = book["book_id"]
 
 def add_manual_book_clicked():
     new_book = left_panel.get_book_data_from_form()
@@ -576,9 +572,18 @@ process_manager = ProcessManager(book_data)
 app = QApplication(sys.argv)
 
 window = QMainWindow()
-window.selected_folder = None
 window.setWindowTitle("Book Catalog")
 window.resize(1000, 600)
+
+window.selected_folder = None
+
+settings = QSettings("YuriyTe", "BookCatalog")
+saved_folder = settings.value("last_folder")
+
+if saved_folder:
+    window.last_folder = saved_folder
+else:
+    window.last_folder = None
 
 splitter = QSplitter(Qt.Orientation.Horizontal)
 
@@ -645,9 +650,6 @@ book_shelf.setSelectionMode(
 
 tabs.addTab(tree_tab, "Дерево")
 tabs.addTab(book_shelf_tab, "Книги")
-
-pixmap = QPixmap(100, 150)
-pixmap.fill(Qt.GlobalColor.lightGray)
 
 book_shelf.setViewMode(QListWidget.ViewMode.IconMode)
 book_shelf.setIconSize(QSize(100, 150))
