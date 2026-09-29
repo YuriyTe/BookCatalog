@@ -10,7 +10,7 @@ def read_fb2(file_path):
 
         root = tree.getroot()
 
-    except ET.ParseError:
+    except (ET.ParseError, FileNotFoundError):
         return None
 
     return root
@@ -171,29 +171,6 @@ def parse_fb2(file_path):
 
 def debug_cover(root):
     pass
-    # coverpage = root.find(f".//{FB2_NS}coverpage")
-    #
-    # if coverpage is None:
-    #     print("COVERPAGE не найден")
-    # else:
-    #     print("=== COVERPAGE ===")
-    #     print(ET.tostring(coverpage, encoding="unicode"))
-    #
-    # print("\n=== BINARY ===")
-    #
-    # binaries = root.findall(f".//{FB2_NS}binary")
-    #
-    # if not binaries:
-    #     print("BINARY не найден")
-    #     return
-    #
-    # for binary in binaries:
-    #     print(
-    #         "id:",
-    #         binary.get("book_id"),
-    #         "| content-type:",
-    #         binary.get("content-type")
-    #     )
 
 def get_cover(root):
     coverpage = root.find(f".//{FB2_NS}coverpage")
@@ -239,14 +216,14 @@ if __name__ == "__main__":
     book = book_data["books"][0]
 
 
-    file_path = Path("D:/_BOOKS_TEST/Sci-Fi/Херберт Фрэнк/Дюна  Хроники Дюны/Дюна.fb2")
+    #file_path = Path("D:/_BOOKS_TEST/Sci-Fi/Херберт Фрэнк/Дюна  Хроники Дюны/Дюна.fb2")
 
-    root = read_fb2(file_path)
-    metadata = extract_fb2_metadata(root)
+    #root = read_fb2(file_path)
+    #metadata = extract_fb2_metadata(root)
 
-    cover = get_cover(root)
+    #cover = get_cover(root)
 
-    print("COVER BYTES:", len(cover) if cover else None)
+    #print("COVER BYTES:", len(cover) if cover else None)
 
 
 

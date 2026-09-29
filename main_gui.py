@@ -455,6 +455,12 @@ def load_books_to_shelf(books, book_shelf):
     for book in books:
         cover = None
 
+        book_file_path = book["path"]
+        file_is_missing = False
+
+        if book_file_path != "" and not Path(book_file_path).is_file():
+            file_is_missing = True
+
         if book["format"] == "fb2":
             cover = get_fb2_cover(book["path"])
 
@@ -476,11 +482,15 @@ def load_books_to_shelf(books, book_shelf):
             QIcon(pixmap),
             book["title"]
         )
+        if file_is_missing:
+            item.setToolTip(f'Файл книги "{book["title"]}" не найден.\n'
+                            f'Ожидался по пути: "{book["path"]}"')
+
+
         item.setData(
             Qt.ItemDataRole.UserRole,
             book["book_id"]
         )
-
         book_shelf.addItem(item)
 
 def refresh_book_shelf(book_data, book_shelf):
