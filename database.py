@@ -44,11 +44,11 @@ def add_book(book_data, new_book):
 
     return new_book
 
-def find_book_by_path(book_data, path):
+def find_book_by_source_path(book_data, path):
     path = Path(path)
 
     for book in book_data["books"]:
-        book_path = Path(book["path"])
+        book_path = Path(book["source_path"])
 
         if book_path == path:
             return book

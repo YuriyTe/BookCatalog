@@ -1,4 +1,6 @@
-from database import find_book_by_id, find_book_by_path, save_database, add_book
+from pathlib import Path
+
+from database import find_book_by_id, find_book_by_source_path, save_database, add_book
 from book_manager import delete_books, compare_metadata, process_metadata_differences, resolve_conflicts
 from file_operations import scan_folder, create_book_from_file
 
@@ -30,7 +32,7 @@ class ProcessManager:
 
     def import_book(self, file_path):
         new_book = create_book_from_file(file_path)
-        existing_book = find_book_by_path(self.book_data, file_path)
+        existing_book = find_book_by_source_path(self.book_data, file_path)
 
         if existing_book is not None:
             differences = compare_metadata(existing_book, new_book)
@@ -70,3 +72,17 @@ class ProcessManager:
 
         save_database(self.book_data)
         return book
+
+    def update_source_path(self, book_id, new_source_path):
+        book = find_book_by_id(self.book_data, book_id)
+        if book is None:
+            return None, "book not found"
+
+        source_path = Path(new_source_path)
+        new_path_format = source_path.suffix.lower().lstrip(".")
+        if new_path_format != book["format"]:
+            return None, "wrong_format"
+        else:
+            book["source_path"] = new_source_path
+            save_database(self.book_data)
+            return book, None

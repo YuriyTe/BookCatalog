@@ -29,7 +29,7 @@ def create_book_from_file(file_path):
         "language": None,
         "cover": None,
         "isbn": None,
-        "path": str(file_path),
+        "source_path": str(file_path),
         "format": file_path.suffix.lower().lstrip("."),
         "status": "new"
     }

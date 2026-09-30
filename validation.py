@@ -46,7 +46,7 @@ def validate_book(book):
         "language",
         "cover",
         "isbn",
-        "path",
+        "source_path",
         "format",
         "status",
     }
@@ -76,7 +76,7 @@ def validate_book(book):
     if not all(isinstance(genre, str) for genre in book["genres"]):
         return False
 
-    if not isinstance(book["path"], str):
+    if not isinstance(book["source_path"], str):
         return False
 
     if not isinstance(book["format"], str):

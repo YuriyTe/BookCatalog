@@ -9,11 +9,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
-from dill import settings
-
 from book_manager import find_book
 from pathlib import Path
-from database import open_database, find_book_by_id, find_book_by_path
+from database import open_database, find_book_by_id, find_book_by_source_path
 from metadata import get_fb2_cover
 from process_manager import ProcessManager
 from datetime import date
@@ -23,6 +21,10 @@ FIELD_NAMES = {
     "author": "Автор",
     "genres": "Жанр",
     "annotation": "Аннотация",
+}
+SOURCE_PATH_ERRORS = {
+    "wrong_format": "Выбран файл другого формата",
+    "book_not_found": "Книга не найдена в каталоге",
 }
 
 # ===== Классы =====
@@ -115,7 +117,7 @@ class BookFormPanel(QWidget):
         new_book["first_publication_year"] = None
         new_book["annotation"] = None
         new_book["cover"] = None
-        new_book["path"] = ""
+        new_book["source_path"] = ""
         new_book["format"] = ""
         new_book["status"] = "new"
 
@@ -216,6 +218,8 @@ class BookInfoPanel(QWidget):
         self.path_label.setWordWrap(True)
         self.correct_button = QPushButton("Внести исправления")
         self.correct_button.setVisible(False)
+        self.find_file_button = QPushButton("Указать расположение файла")
+        self.find_file_button.setVisible(False)
 
         layout.setSpacing(2)
         layout.addWidget(self.title_label)
@@ -226,6 +230,7 @@ class BookInfoPanel(QWidget):
         layout.addWidget(self.format_label)
         layout.addWidget(self.path_label)
         layout.addWidget(self.correct_button)
+        layout.addWidget(self.find_file_button)
 
         layout.addStretch()
 
@@ -236,9 +241,13 @@ class BookInfoPanel(QWidget):
         self.annotation_label.setText(f"Аннотация: {book['annotation']}")
         self.year_label.setText(f"Год: {book["publication_year"]}")
         self.format_label.setText(f"Формат: {book['format']}")
-        self.path_label.setText(f"Путь: {book["path"]}")
+        self.path_label.setText(f"Путь: {book["source_path"]}")
         self.correct_button.setVisible(True)
         self.selected_book_id = book["book_id"]
+        if book["source_path"] != "" and not Path(book["source_path"]).is_file():
+            self.find_file_button.setVisible(True)
+        else:
+            self.find_file_button.setVisible(False)
 
     def clear_book_info(self):
         self.title_label.clear()
@@ -250,6 +259,7 @@ class BookInfoPanel(QWidget):
         self.path_label.clear()
         self.correct_button.setVisible(False)
         self.selected_book_id = None
+        self.find_file_button.setVisible(False)
 
 # ===== Работа с GUI (функции) =====
 def delete_button_clicked(book_data, book_shelf, process_manager):
@@ -307,7 +317,7 @@ def tree_item_clicked(index, book_data):
     path = Path(path)
 
     if path.is_file():
-        book = find_book_by_path(path, book_data)
+        book = find_book_by_source_path(book_data, path)
 
         if book:
             book_info_panel.show_book_info(book)
@@ -452,14 +462,14 @@ def load_books_to_shelf(books, book_shelf):
     for book in books:
         cover = None
 
-        book_file_path = book["path"]
+        book_file_path = book["source_path"]
         file_is_missing = False
 
         if book_file_path != "" and not Path(book_file_path).is_file():
             file_is_missing = True
 
         if book["format"] == "fb2":
-            cover = get_fb2_cover(book["path"])
+            cover = get_fb2_cover(book["source_path"])
 
         if cover:
             pixmap = QPixmap()
@@ -481,7 +491,7 @@ def load_books_to_shelf(books, book_shelf):
         )
         if file_is_missing:
             item.setToolTip(f'Файл книги "{book["title"]}" не найден.\n'
-                            f'Ожидался по пути: "{book["path"]}"')
+                            f'Ожидался по пути: "{book["source_path"]}"')
 
 
         item.setData(
@@ -563,6 +573,28 @@ def correct_book_clicked():
 
     left_panel.load_book_to_form(book)
 
+def find_book_file_clicked():
+    book_id = book_info_panel.selected_book_id
+    source_path, _ = QFileDialog.getOpenFileName()
+
+    if source_path == "":
+        return
+
+    book, error = process_manager.update_source_path(book_id, source_path)
+    if error:
+        QMessageBox.information(
+            window,
+            "Ошибка",
+            SOURCE_PATH_ERRORS.get(error, "Неизвестная ошибка")
+        )
+        return
+
+    book_info_panel.show_book_info(book)
+    refresh_book_shelf(book_data, book_shelf)
+
+    QMessageBox.information(window,
+                            "path setted",
+                            "Путь к книге исправлен")
 
 # ===== Работа с базой =====
 book_data = open_database()
@@ -671,6 +703,7 @@ button_add_book.clicked.connect(lambda: add_selected_book_to_library(book_data))
 
 book_info_panel = BookInfoPanel()
 book_info_panel.correct_button.clicked.connect(correct_book_clicked)
+book_info_panel.find_file_button.clicked.connect(find_book_file_clicked)
 
 splitter.addWidget(left_panel)
 splitter.addWidget(tree_panel)
