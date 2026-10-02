@@ -12,9 +12,17 @@ def delete_books(book_data, id_number):
 def find_book(book_data, word):
     query_words = word.lower().split()
     found_books = []
+
     for book in book_data["books"]:
-        book_lower = book["title"].lower()
-        if all(word in book_lower for word in query_words):
+        book_title_lower = book["title"].lower()
+        if book["author"] is None:
+            book_author_lower = ""
+        else:
+            book_author_lower = book["author"].lower()
+
+        search_text = book_title_lower +" " + book_author_lower
+
+        if all(word in search_text for word in query_words):
             found_books.append(book)
 
     return found_books
