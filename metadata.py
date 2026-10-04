@@ -1,24 +1,58 @@
 import xml.etree.ElementTree as ET, base64
+from abc import ABC, abstractmethod
 
 FB2_NS = "{http://www.gribuser.ru/xml/fictionbook/2.0}"
 
-def read_fb2(file_path):
-    try:
-        tree = ET.parse(file_path)
+class MetadataParser(ABC):
 
-        root = tree.getroot()
+    @abstractmethod
+    def parse(self, file_path):
+        pass
 
-    except (ET.ParseError, FileNotFoundError):
-        return None
+class Fb2MetadataParser(MetadataParser):
 
-    return root
+    def parse(self, file_path):
+        root = self.read_fb2(file_path)
+        if root is None:
+            return None
+        return self.extract_fb2_metadata(root)
 
-def get_description(root):
-    description = root.find(f"{FB2_NS}description")
+    def read_fb2(self, file_path):
+        try:
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+        except (ET.ParseError, FileNotFoundError):
+            return None
+        return root
 
-    if description is None:
-        return None
-    return description
+    def get_description(self, root):
+        self.description = root.find(f"{FB2_NS}description")
+
+        if self.description is None:
+            return None
+        return self.description
+
+    def extract_fb2_metadata(self, root):
+        self.description = self.get_description(root)
+
+        if self.description is None:
+            return None
+
+        title_info = get_title_info(self.description)
+        publish_info = get_publish_info(self.description)
+
+        metadata = {
+            "title": get_title(title_info),
+            "author": get_author(title_info),
+            "genres": get_genres(title_info),
+            "publication_year": get_publish_year(publish_info),
+            "isbn": get_isbn(publish_info),
+            "language": get_language(title_info),
+            "annotation": get_annotation_text(get_annotation(title_info), ),
+            "cover": None
+        }
+
+        return metadata
 
 def get_title_info(description):
     title_info = description.find(f"{FB2_NS}title-info")
@@ -137,36 +171,6 @@ def get_annotation_text(annotation):
 
     return "\n".join(paragraphs)
 
-def extract_fb2_metadata(root):
-    description = get_description(root)
-
-    if description is None:
-        return None
-
-    title_info = get_title_info(description)
-    publish_info = get_publish_info(description)
-
-    metadata = {
-        "title": get_title(title_info),
-        "author": get_author(title_info),
-        "genres": get_genres(title_info),
-        "publication_year": get_publish_year(publish_info),
-        "isbn": get_isbn(publish_info),
-        "language": get_language(title_info),
-        "annotation": get_annotation_text(get_annotation(title_info),),
-        "cover": None
-    }
-
-    return metadata
-
-def parse_fb2(file_path):
-    root = read_fb2(file_path)
-
-    if root is None:
-        return None
-
-    return extract_fb2_metadata(root)
-
 def get_cover(root):
     coverpage = root.find(f".//{FB2_NS}coverpage")
 
@@ -198,7 +202,7 @@ def get_cover(root):
         return None
 
 def get_fb2_cover(file_path):
-    root = read_fb2(file_path)
+    root = self.read_fb2(file_path)
 
     if root is None:
         return None
