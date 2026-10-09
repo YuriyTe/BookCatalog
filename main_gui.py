@@ -12,9 +12,9 @@ from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 from book_manager import find_book
 from pathlib import Path
 from database import open_database, find_book_by_id, find_book_by_source_path
-from metadata import get_fb2_cover
 from process_manager import ProcessManager
 from datetime import date
+from parser_factory import ParserFactory
 
 # ===== Константы =====
 FIELD_NAMES = {
@@ -215,6 +215,7 @@ class BookInfoPanel(QWidget):
         self.annotation_label = QLabel()
         self.annotation_label.setWordWrap(True)
         self.year_label = QLabel()
+        self.isbn_label = QLabel()
         self.format_label = QLabel()
         self.path_label = QLabel()
         self.path_label.setWordWrap(True)
@@ -229,6 +230,7 @@ class BookInfoPanel(QWidget):
         layout.addWidget(self.genre_label)
         layout.addWidget(self.annotation_label)
         layout.addWidget(self.year_label)
+        layout.addWidget(self.isbn_label)
         layout.addWidget(self.format_label)
         layout.addWidget(self.path_label)
         layout.addWidget(self.correct_button)
@@ -242,6 +244,7 @@ class BookInfoPanel(QWidget):
         self.genre_label.setText(f"Жанр: {book["genres"]}")
         self.annotation_label.setText(f"Аннотация: {book['annotation']}")
         self.year_label.setText(f"Год: {book["publication_year"]}")
+        self.isbn_label.setText(f"ISBN: {book['isbn']}"),
         self.format_label.setText(f"Формат: {book['format']}")
         self.path_label.setText(f"Путь: {book["source_path"]}")
         self.correct_button.setVisible(True)
@@ -257,6 +260,7 @@ class BookInfoPanel(QWidget):
         self.genre_label.clear()
         self.annotation_label.clear()
         self.year_label.clear()
+        self.isbn_label.clear()
         self.format_label.clear()
         self.path_label.clear()
         self.correct_button.setVisible(False)
@@ -271,7 +275,7 @@ class LibraryPanel(QWidget):
 
         self.button_choose_folder = QPushButton("Выбрать папку")
         self.button_import_folder = QPushButton("Импортировать книги из этой папки")
-        self.button_import_book = QPushButton("Импортировать выбранную книгу")
+        self.button_import_book = QPushButton("Импортировать выбранные книги")
 
         self.folder_label = QLabel("Папка не выбрана")
 
@@ -284,6 +288,7 @@ class LibraryPanel(QWidget):
 
         self.tree = QTreeView()
         self.tree.setModel(self.model)
+        self.tree.setSelectionMode(QTreeView.SelectionMode.ExtendedSelection)
 
         self.main_layout.addWidget(self.button_choose_folder)
         button_row = QHBoxLayout()
@@ -363,7 +368,6 @@ class LibraryPanel(QWidget):
             window.selected_folder = folder_path
             self.folder_label.setText(f"📁 {folder_path.name}")
 
-
 # ===== Работа с GUI (функции) =====
 def delete_button_clicked(book_data, book_view, process_manager):
     if book_view is None:
@@ -426,16 +430,20 @@ def tree_item_clicked(index, book_data):
         if book:
             book_info_panel.show_book_info(book)
 
-def import_selected_book(book_data):
-    index = library_panel.tree.currentIndex()
-    path = library_panel.model.filePath(index)
-    path = Path(path)
-    if not path.is_file():
-        return
-    result = process_manager.import_book(path)
+def import_selected_books(book_data):
+    books_chosen = library_panel.tree.selectionModel().selectedRows(0)
+    results = []
+    for name_of_book in books_chosen:
+        path = library_panel.model.filePath(name_of_book)
+        path = Path(path)
+        if not path.is_file():
+            continue
+        result = process_manager.import_book(path)
 
-    if result is not None:
-        handle_import_conflicts([result])
+        if result is not None:
+            results.append()
+
+    handle_import_conflicts(results)
 
     refresh_book_shelf(book_data, library_panel.book_shelf)
 
@@ -572,8 +580,12 @@ def load_books_to_shelf(books, book_shelf):
         if book_file_path != "" and not Path(book_file_path).is_file():
             file_is_missing = True
 
-        if book["format"] == "fb2":
-            cover = get_fb2_cover(book["source_path"])
+        book_format = book["format"]
+        parser = ParserFactory.create_parser(book_format)
+        if parser is not None:
+            cover = parser.get_cover(book["source_path"])
+        else:
+            cover = None
 
         if cover:
             pixmap = QPixmap()
@@ -596,7 +608,6 @@ def load_books_to_shelf(books, book_shelf):
         if file_is_missing:
             item.setToolTip(f'Файл книги "{book["title"]}" не найден.\n'
                             f'Ожидался по пути: "{book["source_path"]}"')
-
 
         item.setData(
             Qt.ItemDataRole.UserRole,
@@ -700,8 +711,6 @@ def find_book_file_clicked():
                             "path setted",
                             "Путь к книге исправлен")
 
-
-
 # ===== Работа с базой =====
 book_data = open_database()
 
@@ -749,11 +758,10 @@ library_panel.book_search_results.itemClicked.connect(select_book_from_shelf)
 library_panel.book_search_results.itemSelectionChanged.connect(lambda:
     left_panel.update_delete_button_text(len(library_panel.book_search_results.selectedItems())))
 
-
 library_panel.tree.clicked.connect(lambda index: tree_item_clicked(index, book_data))
 library_panel.tree.doubleClicked.connect(library_panel.select_folder_double_clicked)
 
-library_panel.button_import_book.clicked.connect(lambda: import_selected_book(
+library_panel.button_import_book.clicked.connect(lambda: import_selected_books(
     book_data))
 
 book_info_panel = BookInfoPanel()

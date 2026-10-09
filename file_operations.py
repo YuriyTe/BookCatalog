@@ -1,4 +1,5 @@
-from metadata import parse_fb2
+from metadata import Fb2MetadataParser
+from parser_factory import ParserFactory
 
 BOOK_FORMATS = {
     ".fb2",
@@ -8,6 +9,8 @@ BOOK_FORMATS = {
     ".txt",
     ".djvu",
 }
+
+parser = Fb2MetadataParser()
 
 def scan_folder(folder):
     books = []
@@ -35,25 +38,14 @@ def create_book_from_file(file_path):
     }
 
     book_format = file_path.suffix.lower().lstrip(".")
+    parser = ParserFactory.create_parser(book_format)
 
-    if book_format == "fb2":
-        metadata = parse_fb2(file_path)
+    if parser is not None:
+        metadata = parser.parse(file_path)
 
         if metadata is not None:
             new_book.update(metadata)
 
-    elif book_format == "epub":
-        pass
-    elif book_format == "pdf":
-        pass
-    elif book_format == "mobi":
-        pass
-    elif book_format == "txt":
-        pass
-    elif book_format == "djvu":
-        pass
-
     return new_book
-
 
 
