@@ -206,8 +206,8 @@ class EpubMetadataParser(MetadataParser):
             if self.is_valid_isbn(identifire):
                 if len(isbn) < len(identifire):
                     isbn = identifire
-                    if isbn == "":
-                        isbn = None
+        if isbn == "":
+            isbn = None
 
         return isbn
 

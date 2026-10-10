@@ -441,7 +441,7 @@ def import_selected_books(book_data):
         result = process_manager.import_book(path)
 
         if result is not None:
-            results.append()
+            results.append(result)
 
     handle_import_conflicts(results)
 
@@ -579,13 +579,13 @@ def load_books_to_shelf(books, book_shelf):
 
         if book_file_path != "" and not Path(book_file_path).is_file():
             file_is_missing = True
-
-        book_format = book["format"]
-        parser = ParserFactory.create_parser(book_format)
-        if parser is not None:
-            cover = parser.get_cover(book["source_path"])
         else:
-            cover = None
+            book_format = book["format"]
+            parser = ParserFactory.create_parser(book_format)
+            if parser is not None:
+                cover = parser.get_cover(book["source_path"])
+            else:
+                cover = None
 
         if cover:
             pixmap = QPixmap()
