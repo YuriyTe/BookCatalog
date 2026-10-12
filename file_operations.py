@@ -1,3 +1,4 @@
+from pathlib import Path
 from metadata import Fb2MetadataParser
 from parser_factory import ParserFactory
 
@@ -48,4 +49,25 @@ def create_book_from_file(file_path):
 
     return new_book
 
+def is_book_file_missing(book_file_path):
+    if book_file_path == "":
+        return False
+    if not Path(book_file_path).is_file():
+        return True
+    return False
 
+def get_book_cover(book_file_path, book_format):
+    cover = None
+    file_is_missing = False
+
+    if book_file_path == "":
+        return cover, file_is_missing
+    file_is_missing = is_book_file_missing(book_file_path)
+    if file_is_missing:
+        return cover, file_is_missing
+
+    parser = ParserFactory.create_parser(book_format)
+    if parser is not None:
+        cover = parser.get_cover(book_file_path)
+
+    return cover, file_is_missing

@@ -12,9 +12,9 @@ from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 from book_manager import find_book
 from pathlib import Path
 from database import open_database, find_book_by_id, find_book_by_source_path
+from file_operations import get_book_cover, is_book_file_missing
 from process_manager import ProcessManager
 from datetime import date
-from parser_factory import ParserFactory
 
 # ===== Константы =====
 FIELD_NAMES = {
@@ -73,11 +73,6 @@ class BookFormPanel(QWidget):
         self.button_find = QPushButton("Найти книгу")
 
         self.button_save_book.clicked.connect(lambda: save_book_clicked())
-
-        self.button_delete.clicked.connect(lambda: delete_button_clicked(book_data,
-                            library_panel.get_active_book_view(),process_manager))
-        self.button_find.clicked.connect(lambda: self.find_book_clicked(book_data,
-                                                                        library_panel.book_search_results))
         self.button_cancel_edit.clicked.connect(self.finish_edit_mode)
 
         self.left_layout.addStretch()
@@ -131,14 +126,7 @@ class BookFormPanel(QWidget):
         self.year_edit.clear()
         self.language_edit.clearEditText()
 
-    def find_book_clicked(self, book_data, book_search_results):
-        word = self.title_edit.text().strip()
-        found_books = find_book(book_data, word)
 
-        self.finish_edit_mode()
-        book_search_results.clear()
-        load_books_to_shelf(found_books, book_search_results)
-        library_panel.tabs.setCurrentWidget(library_panel.search_tab)
 
     def load_book_to_form(self, book):
         self.editing_book_id = book["book_id"]
@@ -249,7 +237,7 @@ class BookInfoPanel(QWidget):
         self.path_label.setText(f"Путь: {book["source_path"]}")
         self.correct_button.setVisible(True)
         self.selected_book_id = book["book_id"]
-        if book["source_path"] != "" and not Path(book["source_path"]).is_file():
+        if is_book_file_missing(book["source_path"]):
             self.find_file_button.setVisible(True)
         else:
             self.find_file_button.setVisible(False)
@@ -575,17 +563,9 @@ def load_books_to_shelf(books, book_shelf):
         cover = None
 
         book_file_path = book["source_path"]
-        file_is_missing = False
+        book_format = book["format"]
 
-        if book_file_path != "" and not Path(book_file_path).is_file():
-            file_is_missing = True
-        else:
-            book_format = book["format"]
-            parser = ParserFactory.create_parser(book_format)
-            if parser is not None:
-                cover = parser.get_cover(book["source_path"])
-            else:
-                cover = None
+        cover, file_is_missing = get_book_cover(book_file_path, book_format)
 
         if cover:
             pixmap = QPixmap()
@@ -711,6 +691,18 @@ def find_book_file_clicked():
                             "path setted",
                             "Путь к книге исправлен")
 
+def find_book_clicked(left_panel, book_data, library_panel):
+    word = left_panel.title_edit.text().strip()
+    show_search_results(book_data, word, library_panel)
+    left_panel.finish_edit_mode()
+
+def show_search_results(book_data, word, library_panel):
+    found_books = find_book(book_data, word)
+    library_panel.book_search_results.clear()
+    load_books_to_shelf(found_books, library_panel.book_search_results)
+    library_panel.tabs.setCurrentWidget(library_panel.search_tab)
+
+
 # ===== Работа с базой =====
 book_data = open_database()
 
@@ -741,8 +733,12 @@ main_widget.setLayout(main_layout)
 window.setCentralWidget(main_widget)
 
 left_panel = BookFormPanel()
-
 library_panel = LibraryPanel()
+
+left_panel.button_delete.clicked.connect(lambda: delete_button_clicked(book_data,
+                                library_panel.get_active_book_view(), process_manager))
+left_panel.button_find.clicked.connect(lambda: find_book_clicked(left_panel,
+                                    book_data, library_panel))
 
 library_panel.button_choose_folder.clicked.connect(choose_folder)
 library_panel.button_import_folder.clicked.connect(import_selected_folder)

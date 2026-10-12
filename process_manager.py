@@ -76,7 +76,7 @@ class ProcessManager:
     def update_source_path(self, book_id, new_source_path):
         book = find_book_by_id(self.book_data, book_id)
         if book is None:
-            return None, "book not found"
+            return None, "book_not_found"
 
         source_path = Path(new_source_path)
         new_path_format = source_path.suffix.lower().lstrip(".")
