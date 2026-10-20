@@ -28,36 +28,32 @@ def save_database(book_data):
     with open('data/book_db.json', 'w', encoding='utf-8') as file:
         json.dump(book_data, file, indent=4, ensure_ascii=False)
 
-def add_book(book_data, new_book):
-    if book_data["books"]:
-        new_id = max(book["book_id"] for book in book_data["books"]) + 1
-    else:
-        new_id = 1
+# def add_book(book_data, new_book):
+#     if book_data["books"]:
+#         new_id = max(book["book_id"] for book in book_data["books"]) + 1
+#     else:
+#         new_id = 1
+#
+#     new_book["book_id"] = new_id
+#
+#     if not validate_book(new_book):
+#         return None
+#
+#     book_data["books"].append(new_book)
+#     book_data["book_count"] = len(book_data["books"])
+#
+#     return new_book
 
-    new_book["book_id"] = new_id
+# def find_book_by_source_path(book_data, path):
+#     path = Path(path)
+#
+#     for book in book_data["books"]:
+#         book_path = Path(book["source_path"])
+#
+#         if book_path == path:
+#             return book
+#
+#     return None
 
-    if not validate_book(new_book):
-        return None
 
-    book_data["books"].append(new_book)
-    book_data["book_count"] = len(book_data["books"])
 
-    return new_book
-
-def find_book_by_source_path(book_data, path):
-    path = Path(path)
-
-    for book in book_data["books"]:
-        book_path = Path(book["source_path"])
-
-        if book_path == path:
-            return book
-
-    return None
-
-def find_book_by_id(book_data, book_id):
-    for book in book_data["books"]:
-        if book["book_id"] == book_id:
-            return book
-
-    return None

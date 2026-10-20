@@ -1,21 +1,22 @@
 from pathlib import Path
 
-from database import find_book_by_id, find_book_by_source_path, save_database, add_book
-from book_manager import delete_books, compare_metadata, process_metadata_differences, resolve_conflicts
+from database import save_database
+from book_manager import compare_metadata, process_metadata_differences, resolve_conflicts
 from file_operations import scan_folder, create_book_from_file
 
 
 class ProcessManager:
-    def __init__(self, book_data):
-        self.book_data = book_data
+    def __init__(self, book_catalog):
+        self.book_catalog = book_catalog
 
     def remove_book(self, book_id):
-        book = find_book_by_id(self.book_data, book_id)
+        book = self.book_catalog.find_book_by_id(book_id)
         if book is None:
             return None
 
-        delete_books(self.book_data, book_id)
-        save_database(self.book_data)
+        self.book_catalog.delete_book(book_id)
+        book_data = self.book_catalog.book_data
+        save_database(book_data)
 
         return book
 
@@ -32,7 +33,7 @@ class ProcessManager:
 
     def import_book(self, file_path):
         new_book = create_book_from_file(file_path)
-        existing_book = find_book_by_source_path(self.book_data, file_path)
+        existing_book = self.book_catalog.find_book_by_source_path(file_path)
 
         if existing_book is not None:
             differences = compare_metadata(existing_book, new_book)
@@ -43,25 +44,31 @@ class ProcessManager:
             if conflict_fields:
                 return existing_book, differences, conflict_fields
 
-            save_database(self.book_data)
+            book_data = self.book_catalog.book_data
+            save_database(book_data)
         else:
-            add_book(self.book_data, new_book)
-            save_database(self.book_data)
+            self.book_catalog.add_book(new_book)
+
+            book_data = self.book_catalog.book_data
+            save_database(book_data)
 
     def apply_conflict_decisions(self, existing_book, differences, decisions):
         book = resolve_conflicts(existing_book, differences, decisions)
-        save_database(self.book_data)
+
+        book_data = self.book_catalog.book_data
+        save_database(book_data)
         return book
 
     def add_manual_book(self, new_book):
-        result = add_book(self.book_data, new_book)
+        result = self.book_catalog.add_book(new_book)
         if result is not None:
-            save_database(self.book_data)
+            book_data = self.book_catalog.book_data
+            save_database(book_data)
 
         return result
 
     def manual_update_book(self, book_id, new_data):
-        book = find_book_by_id(self.book_data, book_id)
+        book = self.book_catalog.find_book_by_id(book_id)
         if book is None:
             return
         book["title"] = new_data["title"]
@@ -70,11 +77,12 @@ class ProcessManager:
         book["publication_year"] = new_data["publication_year"]
         book["language"] = new_data["language"]
 
-        save_database(self.book_data)
+        book_data = self.book_catalog.book_data
+        save_database(book_data)
         return book
 
     def update_source_path(self, book_id, new_source_path):
-        book = find_book_by_id(self.book_data, book_id)
+        book = self.book_catalog.find_book_by_id(book_id)
         if book is None:
             return None, "book_not_found"
 
@@ -84,5 +92,6 @@ class ProcessManager:
             return None, "wrong_format"
         else:
             book["source_path"] = new_source_path
-            save_database(self.book_data)
+            book_data = self.book_catalog.book_data
+            save_database(book_data)
             return book, None
