@@ -26,12 +26,12 @@ def validate_database(book_data):
         return False
 
     for book in book_data["books"]:
-        if not validate_book(book):
+        if not validate_book_record(book):
             return False
 
     return True
 
-def validate_book(book):
+def validate_book_record(book):
     if not isinstance(book, dict):
         return False
 
@@ -98,4 +98,59 @@ def validate_book(book):
         return False
 
     return True
+
+def validate_book(book):
+    required_attributes = {
+        "book_id",
+        "title",
+        "author",
+        "publication_year",
+        "first_publication_year",
+        "genres",
+        "annotation",
+        "language",
+        "cover",
+        "isbn",
+        "source_path",
+        "format",
+        "status",
+    }
+    if not all(hasattr(book, attribute) for attribute in required_attributes):
+        return False
+
+    if not isinstance(book.book_id, int):
+        return False
+    if not isinstance(book.title, str):
+        return False
+    if book.author is not None and not isinstance(book.author, str):
+        return False
+    if book.publication_year is not None and not isinstance(book.publication_year, int):
+        return False
+    if (
+        book.first_publication_year is not None
+        and not isinstance(book.first_publication_year, int)
+    ):
+        return False
+    if not isinstance(book.genres, list):
+        return False
+    if not all(isinstance(genre, str) for genre in book.genres):
+        return False
+    if not isinstance(book.source_path, str):
+        return False
+    if not isinstance(book.format, str):
+        return False
+    if not isinstance(book.status, str):
+        return False
+    if book.annotation is not None and not isinstance(book.annotation, str):
+        return False
+    if book.language is not None and not isinstance(book.language, str):
+        return False
+    if book.cover is not None and not isinstance(book.cover, str):
+        return False
+    if book.isbn is not None and not isinstance(book.isbn, str):
+        return False
+
+    return True
+
+
 

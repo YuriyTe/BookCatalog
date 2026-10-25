@@ -1,7 +1,9 @@
 import json
 from datetime import date
-from validation import validate_database, validate_book
-from pathlib import Path
+
+from book_catalog import BookCatalog
+from validation import validate_database
+from book import Book
 
 
 def open_database():
@@ -23,37 +25,41 @@ def open_database():
 
     return book_data
 
+def book_data_to_objects(book_data):
+    book_objects = []
+    for book_record in book_data["books"]:
+        book = Book(book_record)
+        book_objects.append(book)
+    return book_objects
+
+def catalog_to_records(book_catalog):
+    book_data = []
+    for book in book_catalog.books:
+        book_record = vars(book)
+        book_data.append(book_record)
+    return book_data
+
 def save_database(book_data):
     book_data['last_updated'] = date.today().isoformat()
     with open('data/book_db.json', 'w', encoding='utf-8') as file:
         json.dump(book_data, file, indent=4, ensure_ascii=False)
 
-# def add_book(book_data, new_book):
-#     if book_data["books"]:
-#         new_id = max(book["book_id"] for book in book_data["books"]) + 1
-#     else:
-#         new_id = 1
-#
-#     new_book["book_id"] = new_id
-#
-#     if not validate_book(new_book):
-#         return None
-#
-#     book_data["books"].append(new_book)
-#     book_data["book_count"] = len(book_data["books"])
-#
-#     return new_book
 
-# def find_book_by_source_path(book_data, path):
-#     path = Path(path)
-#
-#     for book in book_data["books"]:
-#         book_path = Path(book["source_path"])
-#
-#         if book_path == path:
-#             return book
-#
-#     return None
+if __name__ == "__main__":
+    book_data = open_database()
+    book_objects = book_data_to_objects(book_data)
+    book_catalog = BookCatalog(book_objects)
+
+    data_to_save = {}
+    data_to_save["book_count"] = len(book_catalog.books)
+    records = catalog_to_records(book_catalog)
+    data_to_save["books"] = records
+    save_database(data_to_save)
+
+
+
+
+
 
 
 

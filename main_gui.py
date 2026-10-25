@@ -758,7 +758,7 @@ library_panel.book_shelf.itemSelectionChanged.connect(lambda:
 
 library_panel.book_search_results.itemClicked.connect(lambda item:
                                                       select_book_from_shelf(item,
-                                                        book_info_panel, book_data))
+                                                        book_info_panel, book_catalog))
 
 library_panel.book_search_results.itemSelectionChanged.connect(lambda:
     left_panel.update_delete_button_text(len(library_panel.book_search_results.selectedItems())))

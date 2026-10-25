@@ -1,5 +1,4 @@
 from pathlib import Path
-from metadata import Fb2MetadataParser
 from parser_factory import ParserFactory
 
 BOOK_FORMATS = {
@@ -11,7 +10,6 @@ BOOK_FORMATS = {
     ".djvu",
 }
 
-parser = Fb2MetadataParser()
 
 def scan_folder(folder):
     books = []

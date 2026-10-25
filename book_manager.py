@@ -1,13 +1,5 @@
 
 
-def delete_books(book_data, id_number):
-    for i, book in enumerate(book_data["books"]):
-        if book["book_id"] == id_number:
-            book_data["books"].pop(i)
-            book_data["book_count"] = len(book_data["books"])
-            break
-    else:
-        print(f"Книга с id {id_number} не найдена.")
 
 def find_book(book_data, word):
     query_words = word.lower().split()
