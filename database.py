@@ -39,6 +39,13 @@ def catalog_to_records(book_catalog):
         book_data.append(book_record)
     return book_data
 
+def catalog_to_database_data(book_catalog):
+    data_to_save = {}
+    data_to_save["book_count"] = len(book_catalog.books)
+    records = catalog_to_records(book_catalog)
+    data_to_save["books"] = records
+    return data_to_save
+
 def save_database(book_data):
     book_data['last_updated'] = date.today().isoformat()
     with open('data/book_db.json', 'w', encoding='utf-8') as file:

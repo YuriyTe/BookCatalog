@@ -3,7 +3,7 @@
 
 class Book:
     def __init__(self, book_record):
-        self.book_id = book_record["book_id"]
+        self.book_id = book_record.get('book_id')
         self.author = book_record.get('author')
         self.title = book_record.get('title')
         self.isbn = book_record.get('isbn')

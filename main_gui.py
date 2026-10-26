@@ -10,10 +10,11 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 
+from book import Book
 from book_catalog import BookCatalog
 from book_manager import find_book
 from pathlib import Path
-from database import open_database
+from database import open_database, book_data_to_objects
 from file_operations import get_book_cover, is_book_file_missing
 from process_manager import ProcessManager
 from datetime import date
@@ -130,29 +131,29 @@ class BookFormPanel(QWidget):
 
 
     def load_book_to_form(self, book):
-        self.editing_book_id = book["book_id"]
+        self.editing_book_id = book.book_id
         self.original_data = {
-            "title": book["title"],
-            "author": book["author"],
-            "genres": book["genres"].copy(),
-            "language": book["language"],
-            "publication_year": book["publication_year"]
+            "title": book.title,
+            "author": book.author,
+            "genres": book.genres.copy(),
+            "language": book.language,
+            "publication_year": book.publication_year
         }
         self.button_save_book.setText("Сохранить изменения")
         self.button_cancel_edit.setVisible(True)
-        self.title_edit.setText(book["title"])
-        author = book["author"]
+        self.title_edit.setText(book.title)
+        author = book.author
         if author is None:
             self.author_edit.setText("")
         else:
-            self.author_edit.setText(book["author"])
-        self.genre_edit.setText(", ".join(book["genres"]))
-        year = book["publication_year"]
+            self.author_edit.setText(book.author)
+        self.genre_edit.setText(", ".join(book.genres))
+        year = book.publication_year
         if year is None:
             self.year_edit.clear()
         else:
             self.year_edit.setText(str(year))
-        language = book["language"]
+        language = book.language
         if language is None:
             self.language_edit.setCurrentText("")
         else:
@@ -228,17 +229,17 @@ class BookInfoPanel(QWidget):
         layout.addStretch()
 
     def show_book_info(self, book):
-        self.title_label.setText(f"Название: {book["title"]}")
-        self.author_label.setText(f"Автор: {book["author"]}")
-        self.genre_label.setText(f"Жанр: {book["genres"]}")
-        self.annotation_label.setText(f"Аннотация: {book['annotation']}")
-        self.year_label.setText(f"Год: {book["publication_year"]}")
-        self.isbn_label.setText(f"ISBN: {book['isbn']}"),
-        self.format_label.setText(f"Формат: {book['format']}")
-        self.path_label.setText(f"Путь: {book["source_path"]}")
+        self.title_label.setText(f"Название: {book.title}")
+        self.author_label.setText(f"Автор: {book.author}")
+        self.genre_label.setText(f"Жанр: {book.genres}")
+        self.annotation_label.setText(f"Аннотация: {book.annotation}")
+        self.year_label.setText(f"Год: {book.publication_year}")
+        self.isbn_label.setText(f"ISBN: {book.isbn}"),
+        self.format_label.setText(f"Формат: {book.format}")
+        self.path_label.setText(f"Путь: {book.source_path}")
         self.correct_button.setVisible(True)
-        self.selected_book_id = book["book_id"]
-        if is_book_file_missing(book["source_path"]):
+        self.selected_book_id = book.book_id
+        if is_book_file_missing(book.source_path):
             self.find_file_button.setVisible(True)
         else:
             self.find_file_button.setVisible(False)
@@ -705,8 +706,8 @@ def show_search_results(book_data, word, library_panel):
 
 # ===== Работа с базой =====
 book_data = open_database()
-
-book_catalog = BookCatalog(book_data)
+book_objects = book_data_to_objects(book_data)
+book_catalog = BookCatalog(book_objects)
 
 process_manager = ProcessManager(book_catalog)
 # ===== Создание и внешний вид GUI =====

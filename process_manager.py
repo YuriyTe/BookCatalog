@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from database import save_database
+from book import Book
+from database import save_database, catalog_to_database_data
 from book_manager import compare_metadata, process_metadata_differences, resolve_conflicts
 from file_operations import scan_folder, create_book_from_file
 
@@ -15,8 +16,8 @@ class ProcessManager:
             return None
 
         self.book_catalog.delete_book(book_id)
-        book_data = self.book_catalog.book_data
-        save_database(book_data)
+        data_to_save = catalog_to_database_data(self.book_catalog)
+        save_database(data_to_save)
 
         return book
 
@@ -60,25 +61,26 @@ class ProcessManager:
         return book
 
     def add_manual_book(self, new_book):
+        new_book = Book(new_book)
         result = self.book_catalog.add_book(new_book)
         if result is not None:
-            book_data = self.book_catalog.book_data
-            save_database(book_data)
+            data_to_save = catalog_to_database_data(self.book_catalog)
+            save_database(data_to_save)
 
         return result
 
-    def manual_update_book(self, book_id, new_data):
+    def manual_update_book(self, book_id, changed_book):
         book = self.book_catalog.find_book_by_id(book_id)
         if book is None:
             return
-        book["title"] = new_data["title"]
-        book["author"] = new_data["author"]
-        book["genres"] = new_data["genres"]
-        book["publication_year"] = new_data["publication_year"]
-        book["language"] = new_data["language"]
+        book.title = changed_book["title"]
+        book.author = changed_book["author"]
+        book.genres = changed_book["genres"]
+        book.publication_year = changed_book["publication_year"]
+        book.language = changed_book["language"]
 
-        book_data = self.book_catalog.book_data
-        save_database(book_data)
+        data_to_save = catalog_to_database_data(self.book_catalog)
+        save_database(data_to_save)
         return book
 
     def update_source_path(self, book_id, new_source_path):
