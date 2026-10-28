@@ -1,16 +1,16 @@
 
 
 
-def find_book(book_data, word):
+def find_book(books, word):
     query_words = word.lower().split()
     found_books = []
 
-    for book in book_data["books"]:
-        book_title_lower = book["title"].lower()
-        if book["author"] is None:
+    for book in books:
+        book_title_lower = book.title.lower()
+        if book.author is None:
             book_author_lower = ""
         else:
-            book_author_lower = book["author"].lower()
+            book_author_lower = book.author.lower()
 
         search_text = book_title_lower +" " + book_author_lower
 
@@ -26,7 +26,7 @@ def compare_metadata(book, metadata):
         if key == "source_path":
             continue
 
-        old_value = book.get(key)
+        old_value = getattr(book, key)
 
         if old_value != new_value:
             differences[key] = {
@@ -45,7 +45,8 @@ def process_metadata_differences(differences, book):
 
     for field, data in differences.items():
         if data["empty"]:
-            book[field] = data["new"]
+            setattr(book, field, data["new"])
+
         else:
             conflict_fields.append(field)
     return book, conflict_fields
@@ -58,7 +59,7 @@ def resolve_conflicts(book, differences, decisions):
 
 
         if decision == "replace":
-            book[field] = data["new"]
+            setattr(book, field, data["new"])
 
         elif decision == "keep":
             continue

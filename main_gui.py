@@ -18,6 +18,7 @@ from database import open_database, book_data_to_objects
 from file_operations import get_book_cover, is_book_file_missing
 from process_manager import ProcessManager
 from datetime import date
+from book import Book
 
 # ===== Константы =====
 FIELD_NAMES = {
@@ -421,7 +422,7 @@ def tree_item_clicked(library_panel, book_info_panel, index, book_catalog):
         if book:
             book_info_panel.show_book_info(book)
 
-def import_selected_books(library_panel, process_manager, book_data):
+def import_selected_books(library_panel, process_manager, books):
     books_chosen = library_panel.tree.selectionModel().selectedRows(0)
     results = []
     for name_of_book in books_chosen:
@@ -436,7 +437,7 @@ def import_selected_books(library_panel, process_manager, book_data):
 
     handle_import_conflicts(process_manager, results)
 
-    refresh_book_shelf(book_data, library_panel.book_shelf)
+    refresh_book_shelf(books, library_panel.book_shelf)
 
 def choose_folder(library_panel, settings):
     folder = QFileDialog.getExistingDirectory(
@@ -486,7 +487,7 @@ def handle_conflict(conflict_fields, differences, remembered_decisions):
 
     return current_decisions
 
-def import_selected_folder(library_panel, process_manager, book_data):
+def import_selected_folder(library_panel, process_manager, books):
 
     if library_panel.selected_folder is None:
         return
@@ -496,7 +497,7 @@ def import_selected_folder(library_panel, process_manager, book_data):
     if results:
         handle_import_conflicts(process_manager, results)
 
-    refresh_book_shelf(book_data, library_panel.book_shelf)
+    refresh_book_shelf(books, library_panel.book_shelf)
 
 def show_conflict_dialog(field, old_value, new_value, parent=None):
     field_name = FIELD_NAMES.get(field, field)
@@ -562,8 +563,8 @@ def load_books_to_shelf(books, book_shelf):
     for book in books:
         cover = None
 
-        book_file_path = book["source_path"]
-        book_format = book["format"]
+        book_file_path = book.source_path
+        book_format = book.format
 
         cover, file_is_missing = get_book_cover(book_file_path, book_format)
 
@@ -583,21 +584,21 @@ def load_books_to_shelf(books, book_shelf):
 
         item = QListWidgetItem(
             QIcon(pixmap),
-            book["title"]
+            book.title
         )
         if file_is_missing:
-            item.setToolTip(f'Файл книги "{book["title"]}" не найден.\n'
-                            f'Ожидался по пути: "{book["source_path"]}"')
+            item.setToolTip(f'Файл книги "{book.title}" не найден.\n'
+                            f'Ожидался по пути: "{book.source_path}"')
 
         item.setData(
             Qt.ItemDataRole.UserRole,
-            book["book_id"]
+            book.book_id
         )
         book_shelf.addItem(item)
 
-def refresh_book_shelf(book_data, book_shelf):
+def refresh_book_shelf(books, book_shelf):
     book_shelf.clear()
-    load_books_to_shelf(book_data["books"], book_shelf)
+    load_books_to_shelf(books, book_shelf)
 
 def select_book_from_shelf(item, book_info_panel, book_catalog):
     book_id = item.data(Qt.ItemDataRole.UserRole)
@@ -607,7 +608,7 @@ def select_book_from_shelf(item, book_info_panel, book_catalog):
     if book:
         book_info_panel.show_book_info(book)
 
-def save_book_clicked(left_panel, process_manager, book_data,
+def save_book_clicked(left_panel, process_manager, books,
                       library_panel, book_info_panel):
     new_book = left_panel.get_book_data_from_form()
     if new_book["title"] is None:
@@ -624,7 +625,7 @@ def save_book_clicked(left_panel, process_manager, book_data,
     if left_panel.editing_book_id is None:
         result = process_manager.add_manual_book(new_book)
         if result is not None:
-            refresh_book_shelf(book_data, library_panel.book_shelf)
+            refresh_book_shelf(books, library_panel.book_shelf)
             left_panel.clear_form()
 
             QMessageBox.information(library_panel,
@@ -633,7 +634,7 @@ def save_book_clicked(left_panel, process_manager, book_data,
         result = process_manager.manual_update_book(left_panel.editing_book_id, new_book)
 
         if result is not None:
-            refresh_book_shelf(book_data, library_panel.book_shelf)
+            refresh_book_shelf(books, library_panel.book_shelf)
             book_info_panel.show_book_info(result)
             left_panel.finish_edit_mode()
 
@@ -669,7 +670,7 @@ def correct_book_clicked(book_info_panel,left_panel, book_catalog):
 
     left_panel.load_book_to_form(book)
 
-def find_book_file_clicked(book_info_panel, library_panel, process_manager, book_data):
+def find_book_file_clicked(book_info_panel, library_panel, process_manager, books):
     book_id = book_info_panel.selected_book_id
     source_path, _ = QFileDialog.getOpenFileName()
 
@@ -686,19 +687,19 @@ def find_book_file_clicked(book_info_panel, library_panel, process_manager, book
         return
 
     book_info_panel.show_book_info(book)
-    refresh_book_shelf(book_data, library_panel.book_shelf)
+    refresh_book_shelf(books, library_panel.book_shelf)
 
     QMessageBox.information(library_panel,
                             "path setted",
                             "Путь к книге исправлен")
 
-def find_book_clicked(left_panel, book_data, library_panel):
+def find_book_clicked(left_panel, books, library_panel):
     word = left_panel.title_edit.text().strip()
-    show_search_results(book_data, word, library_panel)
+    show_search_results(books, word, library_panel)
     left_panel.finish_edit_mode()
 
-def show_search_results(book_data, word, library_panel):
-    found_books = find_book(book_data, word)
+def show_search_results(books, word, library_panel):
+    found_books = find_book(books, word)
     library_panel.book_search_results.clear()
     load_books_to_shelf(found_books, library_panel.book_search_results)
     library_panel.tabs.setCurrentWidget(library_panel.search_tab)
@@ -734,23 +735,24 @@ book_info_panel = BookInfoPanel()
 book_info_panel.correct_button.clicked.connect(lambda : correct_book_clicked(
                                                 book_info_panel,left_panel, book_catalog))
 book_info_panel.find_file_button.clicked.connect(lambda : find_book_file_clicked(
-                            book_info_panel, library_panel, process_manager, book_data))
+                            book_info_panel, library_panel, process_manager,
+    book_catalog.books))
 
 left_panel.button_delete.clicked.connect(lambda: delete_button_clicked(book_info_panel,
                                 library_panel.get_active_book_view(),library_panel,
                                                                     process_manager))
 left_panel.button_find.clicked.connect(lambda: find_book_clicked(left_panel,
-                                    book_data, library_panel))
+                                    book_catalog.books, library_panel))
 left_panel.button_save_book.clicked.connect(lambda : save_book_clicked(
-        left_panel, process_manager, book_data, library_panel, book_info_panel))
+        left_panel, process_manager, book_catalog.books, library_panel, book_info_panel))
 
 
 library_panel.button_choose_folder.clicked.connect(lambda : choose_folder(
                                                         library_panel, settings))
 library_panel.button_import_folder.clicked.connect(lambda :
-                import_selected_folder(library_panel, process_manager, book_data))
+                import_selected_folder(library_panel, process_manager, book_catalog.books))
 
-load_books_to_shelf(book_data["books"], library_panel.book_shelf)
+load_books_to_shelf(book_catalog.books, library_panel.book_shelf)
 
 library_panel.book_shelf.itemClicked.connect(lambda item: select_book_from_shelf(item,
                                                         book_info_panel, book_catalog))
@@ -769,7 +771,7 @@ library_panel.tree.clicked.connect(lambda index: tree_item_clicked(library_panel
 library_panel.tree.doubleClicked.connect(library_panel.select_folder_double_clicked)
 
 library_panel.button_import_book.clicked.connect(lambda: import_selected_books(
-    library_panel, process_manager, book_data))
+    library_panel, process_manager, book_catalog.books))
 
 splitter.addWidget(left_panel)
 splitter.addWidget(library_panel)

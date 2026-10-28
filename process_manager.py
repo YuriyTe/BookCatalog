@@ -45,19 +45,20 @@ class ProcessManager:
             if conflict_fields:
                 return existing_book, differences, conflict_fields
 
-            book_data = self.book_catalog.book_data
-            save_database(book_data)
+            data_to_save = catalog_to_database_data(self.book_catalog)
+            save_database(data_to_save)
         else:
+            new_book = Book(new_book)
             self.book_catalog.add_book(new_book)
 
-            book_data = self.book_catalog.book_data
-            save_database(book_data)
+            data_to_save = catalog_to_database_data(self.book_catalog)
+            save_database(data_to_save)
 
     def apply_conflict_decisions(self, existing_book, differences, decisions):
         book = resolve_conflicts(existing_book, differences, decisions)
 
-        book_data = self.book_catalog.book_data
-        save_database(book_data)
+        data_to_save = catalog_to_database_data(self.book_catalog)
+        save_database(data_to_save)
         return book
 
     def add_manual_book(self, new_book):
@@ -94,6 +95,7 @@ class ProcessManager:
             return None, "wrong_format"
         else:
             book["source_path"] = new_source_path
-            book_data = self.book_catalog.book_data
-            save_database(book_data)
+
+            data_to_save = catalog_to_database_data(self.book_catalog)
+            save_database(data_to_save)
             return book, None
