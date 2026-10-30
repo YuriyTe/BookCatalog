@@ -10,12 +10,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 
-from book_catalog import BookCatalog
 from book_manager import find_book
 from pathlib import Path
-from database import open_database, book_data_to_objects
 from file_operations import get_book_cover, is_book_file_missing
-from process_manager import ProcessManager
 from datetime import date
 
 # ===== Константы =====
@@ -703,88 +700,84 @@ def show_search_results(books, word, library_panel):
     library_panel.tabs.setCurrentWidget(library_panel.search_tab)
 
 
-# ===== Работа с базой =====
-book_data = open_database()
-book_objects = book_data_to_objects(book_data)
-book_catalog = BookCatalog(book_objects)
-
-process_manager = ProcessManager(book_catalog)
 # ===== Создание и внешний вид GUI =====
-app = QApplication(sys.argv)
+def run_app(book_catalog, process_manager):
 
-window = QMainWindow()
-window.setWindowTitle("Book Catalog")
-window.resize(1000, 600)
+    app = QApplication(sys.argv)
 
-settings = QSettings("YuriyTe", "BookCatalog")
+    window = QMainWindow()
+    window.setWindowTitle("Book Catalog")
+    window.resize(1000, 600)
 
-splitter = QSplitter(Qt.Orientation.Horizontal)
+    settings = QSettings("YuriyTe", "BookCatalog")
 
-main_widget = QWidget()
-main_layout = QVBoxLayout()
-main_layout.addWidget(splitter)
-main_widget.setLayout(main_layout)
-window.setCentralWidget(main_widget)
+    splitter = QSplitter(Qt.Orientation.Horizontal)
 
-left_panel = BookFormPanel()
-library_panel = LibraryPanel()
+    main_widget = QWidget()
+    main_layout = QVBoxLayout()
+    main_layout.addWidget(splitter)
+    main_widget.setLayout(main_layout)
+    window.setCentralWidget(main_widget)
 
-book_info_panel = BookInfoPanel()
-book_info_panel.correct_button.clicked.connect(lambda : correct_book_clicked(
-                                                book_info_panel,left_panel, book_catalog))
-book_info_panel.find_file_button.clicked.connect(lambda : find_book_file_clicked(
-                            book_info_panel, library_panel, process_manager,
-    book_catalog.books))
+    left_panel = BookFormPanel()
+    library_panel = LibraryPanel()
 
-left_panel.button_delete.clicked.connect(lambda: delete_button_clicked(book_info_panel,
-                                library_panel.get_active_book_view(),library_panel,
-                                                                    process_manager))
-left_panel.button_find.clicked.connect(lambda: find_book_clicked(left_panel,
-                                    book_catalog.books, library_panel))
-left_panel.button_save_book.clicked.connect(lambda : save_book_clicked(
-        left_panel, process_manager, book_catalog.books, library_panel, book_info_panel))
+    book_info_panel = BookInfoPanel()
+    book_info_panel.correct_button.clicked.connect(lambda : correct_book_clicked(
+                                                    book_info_panel,left_panel, book_catalog))
+    book_info_panel.find_file_button.clicked.connect(lambda : find_book_file_clicked(
+                                book_info_panel, library_panel, process_manager,
+        book_catalog.books))
 
-
-library_panel.button_choose_folder.clicked.connect(lambda : choose_folder(
-                                                        library_panel, settings))
-library_panel.button_import_folder.clicked.connect(lambda :
-                import_selected_folder(library_panel, process_manager, book_catalog.books))
-
-load_books_to_shelf(book_catalog.books, library_panel.book_shelf)
-
-library_panel.book_shelf.itemClicked.connect(lambda item: select_book_from_shelf(item,
-                                                        book_info_panel, book_catalog))
-library_panel.book_shelf.itemSelectionChanged.connect(lambda:
-    left_panel.update_delete_button_text(len(library_panel.book_shelf.selectedItems())))
-
-library_panel.book_search_results.itemClicked.connect(lambda item:
-                                                      select_book_from_shelf(item,
-                                                        book_info_panel, book_catalog))
-
-library_panel.book_search_results.itemSelectionChanged.connect(lambda:
-    left_panel.update_delete_button_text(len(library_panel.book_search_results.selectedItems())))
-
-library_panel.tree.clicked.connect(lambda index: tree_item_clicked(library_panel,
-                                        book_info_panel, index, book_catalog))
-library_panel.tree.doubleClicked.connect(library_panel.select_folder_double_clicked)
-
-library_panel.button_import_book.clicked.connect(lambda: import_selected_books(
-    library_panel, process_manager, book_catalog.books))
-
-splitter.addWidget(left_panel)
-splitter.addWidget(library_panel)
-splitter.addWidget(book_info_panel)
-splitter.setCollapsible(0, False)
-splitter.setCollapsible(2, False)
-
-splitter.setSizes([300, 600, 350])
-splitter.setStyleSheet("""
-    QSplitter::handle {
-        background: #888888; width: 3px;
-    }""")
-book_info_panel.setMinimumWidth(300)
-book_info_panel.setMaximumWidth(400)
+    left_panel.button_delete.clicked.connect(lambda: delete_button_clicked(book_info_panel,
+                                    library_panel.get_active_book_view(),library_panel,
+                                                                        process_manager))
+    left_panel.button_find.clicked.connect(lambda: find_book_clicked(left_panel,
+                                        book_catalog.books, library_panel))
+    left_panel.button_save_book.clicked.connect(lambda : save_book_clicked(
+            left_panel, process_manager, book_catalog.books, library_panel, book_info_panel))
 
 
-window.show()
-app.exec()
+    library_panel.button_choose_folder.clicked.connect(lambda : choose_folder(
+                                                            library_panel, settings))
+    library_panel.button_import_folder.clicked.connect(lambda :
+                    import_selected_folder(library_panel, process_manager, book_catalog.books))
+
+    load_books_to_shelf(book_catalog.books, library_panel.book_shelf)
+
+    library_panel.book_shelf.itemClicked.connect(lambda item: select_book_from_shelf(item,
+                                                            book_info_panel, book_catalog))
+    library_panel.book_shelf.itemSelectionChanged.connect(lambda:
+        left_panel.update_delete_button_text(len(library_panel.book_shelf.selectedItems())))
+
+    library_panel.book_search_results.itemClicked.connect(lambda item:
+                                                          select_book_from_shelf(item,
+                                                            book_info_panel, book_catalog))
+
+    library_panel.book_search_results.itemSelectionChanged.connect(lambda:
+        left_panel.update_delete_button_text(len(library_panel.book_search_results.selectedItems())))
+
+    library_panel.tree.clicked.connect(lambda index: tree_item_clicked(library_panel,
+                                            book_info_panel, index, book_catalog))
+    library_panel.tree.doubleClicked.connect(library_panel.select_folder_double_clicked)
+
+    library_panel.button_import_book.clicked.connect(lambda: import_selected_books(
+        library_panel, process_manager, book_catalog.books))
+
+    splitter.addWidget(left_panel)
+    splitter.addWidget(library_panel)
+    splitter.addWidget(book_info_panel)
+    splitter.setCollapsible(0, False)
+    splitter.setCollapsible(2, False)
+
+    splitter.setSizes([300, 600, 350])
+    splitter.setStyleSheet("""
+        QSplitter::handle {
+            background: #888888; width: 3px;
+        }""")
+    book_info_panel.setMinimumWidth(300)
+    book_info_panel.setMaximumWidth(400)
+
+
+    window.show()
+    app.exec()
