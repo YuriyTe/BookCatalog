@@ -2,7 +2,7 @@ from pathlib import Path
 
 from book import Book
 from database import save_database, catalog_to_database_data
-from book_manager import compare_metadata, process_metadata_differences, resolve_conflicts
+from conflict_manager import compare_metadata, process_metadata_differences, resolve_conflicts
 from file_operations import scan_folder, create_book_from_file
 
 
@@ -16,8 +16,7 @@ class ProcessManager:
             return None
 
         self.book_catalog.delete_book(book_id)
-        data_to_save = catalog_to_database_data(self.book_catalog)
-        save_database(data_to_save)
+        self.save_catalog_to_database()
 
         return book
 
@@ -45,28 +44,24 @@ class ProcessManager:
             if conflict_fields:
                 return existing_book, differences, conflict_fields
 
-            data_to_save = catalog_to_database_data(self.book_catalog)
-            save_database(data_to_save)
+            self.save_catalog_to_database()
         else:
             new_book = Book(new_book)
             self.book_catalog.add_book(new_book)
 
-            data_to_save = catalog_to_database_data(self.book_catalog)
-            save_database(data_to_save)
+            self.save_catalog_to_database()
 
     def apply_conflict_decisions(self, existing_book, differences, decisions):
         book = resolve_conflicts(existing_book, differences, decisions)
 
-        data_to_save = catalog_to_database_data(self.book_catalog)
-        save_database(data_to_save)
+        self.save_catalog_to_database()
         return book
 
     def add_manual_book(self, new_book):
         new_book = Book(new_book)
         result = self.book_catalog.add_book(new_book)
         if result is not None:
-            data_to_save = catalog_to_database_data(self.book_catalog)
-            save_database(data_to_save)
+            self.save_catalog_to_database()
 
         return result
 
@@ -80,8 +75,7 @@ class ProcessManager:
         book.publication_year = changed_book["publication_year"]
         book.language = changed_book["language"]
 
-        data_to_save = catalog_to_database_data(self.book_catalog)
-        save_database(data_to_save)
+        self.save_catalog_to_database()
         return book
 
     def update_source_path(self, book_id, new_source_path):
@@ -96,6 +90,9 @@ class ProcessManager:
         else:
             book.source_path = new_source_path
 
-            data_to_save = catalog_to_database_data(self.book_catalog)
-            save_database(data_to_save)
+            self.save_catalog_to_database()
             return book, None
+
+    def save_catalog_to_database(self):
+        data_to_save = catalog_to_database_data(self.book_catalog)
+        save_database(data_to_save)

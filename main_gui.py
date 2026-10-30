@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 
-from book_manager import find_book
 from pathlib import Path
 from file_operations import get_book_cover, is_book_file_missing
 from datetime import date
@@ -688,13 +687,13 @@ def find_book_file_clicked(book_info_panel, library_panel, process_manager, book
                             "path setted",
                             "Путь к книге исправлен")
 
-def find_book_clicked(left_panel, books, library_panel):
+def find_book_clicked(left_panel, book_catalog, library_panel):
     word = left_panel.title_edit.text().strip()
-    show_search_results(books, word, library_panel)
+    show_search_results(book_catalog, word, library_panel)
     left_panel.finish_edit_mode()
 
-def show_search_results(books, word, library_panel):
-    found_books = find_book(books, word)
+def show_search_results(book_catalog, word, library_panel):
+    found_books = book_catalog.find_book(word)
     library_panel.book_search_results.clear()
     load_books_to_shelf(found_books, library_panel.book_search_results)
     library_panel.tabs.setCurrentWidget(library_panel.search_tab)
@@ -733,7 +732,7 @@ def run_app(book_catalog, process_manager):
                                     library_panel.get_active_book_view(),library_panel,
                                                                         process_manager))
     left_panel.button_find.clicked.connect(lambda: find_book_clicked(left_panel,
-                                        book_catalog.books, library_panel))
+                                        book_catalog, library_panel))
     left_panel.button_save_book.clicked.connect(lambda : save_book_clicked(
             left_panel, process_manager, book_catalog.books, library_panel, book_info_panel))
 
