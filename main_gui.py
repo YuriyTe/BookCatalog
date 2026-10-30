@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt, QDir, QSize, QSettings
 from PySide6.QtGui import QIcon, QPixmap, QIntValidator
 
-from book import Book
 from book_catalog import BookCatalog
 from book_manager import find_book
 from pathlib import Path
@@ -18,7 +17,6 @@ from database import open_database, book_data_to_objects
 from file_operations import get_book_cover, is_book_file_missing
 from process_manager import ProcessManager
 from datetime import date
-from book import Book
 
 # ===== Константы =====
 FIELD_NAMES = {

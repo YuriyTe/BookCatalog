@@ -91,10 +91,10 @@ class ProcessManager:
 
         source_path = Path(new_source_path)
         new_path_format = source_path.suffix.lower().lstrip(".")
-        if new_path_format != book["format"]:
+        if new_path_format != book.format:
             return None, "wrong_format"
         else:
-            book["source_path"] = new_source_path
+            book.source_path = new_source_path
 
             data_to_save = catalog_to_database_data(self.book_catalog)
             save_database(data_to_save)

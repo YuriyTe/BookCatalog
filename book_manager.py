@@ -64,9 +64,12 @@ def resolve_conflicts(book, differences, decisions):
         elif decision == "keep":
             continue
         elif decision == "add" and field == "genres":
-            book[field] = add_unique_values(book[field], data["new"])
+            genres = add_unique_values(book.genres, data["new"])
+            setattr(book, field, genres)
+
         elif decision == "add" and field == "annotation":
-            book[field] = book[field] + "\n\n" + data["new"]
+            annotation = book.annotation + "\n\n" + data["new"]
+            setattr(book, field, annotation)
 
     return book
 
